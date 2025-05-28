@@ -1,0 +1,15 @@
+{
+  "name": "english-grammar-api",
+  "version": "1.0.0",
+  "description": "Backend API for English Grammar Drill App",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}
