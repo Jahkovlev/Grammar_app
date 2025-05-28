@@ -24,14 +24,59 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const { subject, verb } = req.body;
+        const { subject, verb, tense = 'present' } = req.body;
 
         if (!subject || !verb) {
             return res.status(400).json({ error: 'Missing subject or verb' });
         }
 
-        // Create a very specific prompt for Anthropic
-        const prompt = `You are a grammar assistant. Your ONLY job is to conjugate English verbs correctly.
+        // Create a specific prompt based on tense
+        let prompt;
+        
+        if (tense === 'past') {
+            prompt = `You are a grammar assistant. Your ONLY job is to conjugate English verbs correctly in PAST SIMPLE tense.
+
+Given:
+- Subject: "${subject}"
+- Verb: "${verb}"
+- Tense: Past Simple
+
+Generate EXACTLY 4 sentences following these patterns:
+1. [Subject] [past form of verb]
+2. [Subject] didn't [base verb]
+3. Did [subject] [base verb]?
+4. Where did [subject] [base verb]?
+
+Rules:
+- Use the correct past form (went for go, fixed for fix, got for get, add -ed for regular verbs)
+- Past Simple uses "didn't" and "did" for ALL subjects
+- Questions use "did" + base form of verb
+- ONLY output the 4 sentences, one per line
+- NO explanations, NO additional text
+
+Examples:
+Subject: "I", Verb: "go"
+I went
+I didn't go
+Did I go?
+Where did I go?
+
+Subject: "she", Verb: "fix"
+She fixed
+She didn't fix
+Did she fix?
+Where did she fix?
+
+Subject: "my friends", Verb: "get"
+My friends got
+My friends didn't get
+Did my friends get?
+Where did my friends get?
+
+Now generate for Subject: "${subject}", Verb: "${verb}"`;
+        } else {
+            // Present tense prompt (original)
+            prompt = `You are a grammar assistant. Your ONLY job is to conjugate English verbs correctly in PRESENT SIMPLE tense.
 
 Given:
 - Subject: "${subject}"
@@ -69,6 +114,7 @@ Do my friends fix?
 Where do my friends fix?
 
 Now generate for Subject: "${subject}", Verb: "${verb}"`;
+        }
 
         const response = await anthropic.messages.create({
             model: 'claude-3-haiku-20240307', // Use a cheaper, faster model for simple tasks
@@ -82,11 +128,16 @@ Now generate for Subject: "${subject}", Verb: "${verb}"`;
 
         const sentences = response.content[0].text.trim().split('\n').filter(line => line.trim());
 
-        // Determine scheme based on the conjugation used
-        const isScheme2 = sentences[0].includes(verb + 's') || sentences[0].includes(verb + 'es');
-        const schemeInfo = isScheme2 
-            ? 'Scheme 2: he/she/it forms (third person singular)' 
-            : 'Scheme 1: I/you/we/they forms';
+        // Determine scheme info based on tense
+        let schemeInfo;
+        if (tense === 'past') {
+            schemeInfo = 'Past Simple: same form for all subjects';
+        } else {
+            const isScheme2 = sentences[0].includes(verb + 's') || sentences[0].includes(verb + 'es');
+            schemeInfo = isScheme2 
+                ? 'Scheme 2: he/she/it forms (third person singular)' 
+                : 'Scheme 1: I/you/we/they forms';
+        }
 
         return res.status(200).json({
             sentences: sentences,
