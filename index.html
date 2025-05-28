@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Grammar Drill</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .welcome-text {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .menu-button {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            background: #48bb78;
+        }
+
+        .menu-button:hover {
+            background: #38a169;
+        }
+
+        .back-button {
+            background: #f56565;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        .back-button:hover {
+            background: #e53e3e;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            background: #4299e1;
+            padding: 10px 25px;
+            font-size: 16px;
+        }
+
+        .nav-button:hover {
+            background: #3182ce;
+        }
+
+        .exercise-container {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .sentence {
+            font-size: 20px;
+            color: #2d3748;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .sentence:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .exercise-title {
+            font-size: 18px;
+            color: #718096;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .verb-info {
+            background: #bee3f8;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #2c5282;
+        }
+
+        .scheme-info {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fed7d7;
+            border-radius: 8px;
+        }
+
+        .api-setup {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .api-setup input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .api-setup label {
+            display: block;
+            color: #4a5568;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            button {
+                padding: 12px 25px;
+                font-size: 16px;
+            }
+            
+            .navigation-buttons {
+                justify-content: center;
+            }
+            
+            .nav-button {
+                margin: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="screen">
+            <h1>Welcome, learner!</h1>
+            <p class="welcome-text">Let's go and get you fluency NOW!</p>
+            <button onclick="showApiSetup()">GO!</button>
+        </div>
+
+        <!-- API Setup -->
+        <div id="apiSetup" class="screen hidden">
+            <h2>Setup Your Learning Assistant</h2>
+            <div class="api-setup">
+                <label for="apiEndpoint">API Endpoint URL:</label>
+                <input type="text" id="apiEndpoint" placeholder="https://your-backend.vercel.app/api/conjugate">
+                <p style="font-size: 14px; color: #718096; margin-top: 5px;">
+                    Enter your backend URL that handles Anthropic API requests
+                </p>
+            </div>
+            <button onclick="saveApiSettings()">Continue</button>
+            <button class="back-button" onclick="showWelcome()">Back</button>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="mainMenu" class="screen hidden">
+            <h1>Main Menu</h1>
+            <button class="menu-button" onclick="showExercises()">Exercises</button>
+            <button class="menu-button" onclick="showTestYourself()">Test Yourself</button>
+        </div>
+
+        <!-- Exercises Menu -->
+        <div id="exercisesMenu" class="screen hidden">
+            <h2>Exercises</h2>
+            <button class="menu-button" onclick="startExercise1()">Subject-Verb Agreement Practice</button>
+            <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
+        </div>
+
+        <!-- Exercise 1 -->
+        <div id="exercise1" class="screen hidden">
+            <h2>Subject-Verb Agreement</h2>
+            <p class="exercise-title">Practice changing subjects while keeping the same verb</p>
+            
+            <div class="verb-info" id="currentVerb">Current verb: go</div>
+            <div class="scheme-info" id="schemeInfo">Loading...</div>
+            
+            <div class="exercise-container">
+                <div id="sentenceDisplay">
+                    <div class="sentence" id="sentence1">Loading...</div>
+                    <div class="sentence" id="sentence2">Loading...</div>
+                    <div class="sentence" id="sentence3">Loading...</div>
+                    <div class="sentence" id="sentence4">Loading...</div>
+                </div>
+            </div>
+
+            <div id="errorMessage" class="error-message hidden"></div>
+
+            <div class="navigation-buttons">
+                <button class="nav-button" id="backBtn" onclick="previousSubject()" disabled>Back</button>
+                <button class="nav-button" id="changeWordBtn" onclick="changeVerb()">Change the Word</button>
+                <button class="nav-button" id="nextBtn" onclick="nextSubject()">Next</button>
+            </div>
+            
+            <button class="back-button" onclick="showExercises()">Back to Exercises</button>
+        </div>
+
+        <!-- Test Yourself (Coming Soon) -->
+        <div id="testYourself" class="screen hidden">
+            <h2>Test Yourself</h2>
+            <p class="welcome-text">Coming soon! This feature will test your knowledge of the grammar patterns you've practiced.</p>
+            <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const verbs = ['go', 'fix', 'get'];
+        const allSubjects = ['I', 'you', 'he', 'she', 'it', 'we', 'they', 'my friend', 'my friends', 'your dog', 'your dogs', 'his teacher', 'his teachers'];
+
+        // State
+        let currentVerb = 'go';
+        let currentSubjectIndex = 0;
+        let apiEndpoint = '';
+        let isLoading = false;
+
+        // Navigation functions
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function showWelcome() {
+            showScreen('welcomeScreen');
+        }
+
+        function showApiSetup() {
+            // Check if API endpoint is already saved
+            const savedEndpoint = localStorage.getItem('apiEndpoint');
+            if (savedEndpoint) {
+                apiEndpoint = savedEndpoint;
+                showMainMenu();
+            } else {
+                showScreen('apiSetup');
+            }
+        }
+
+        function saveApiSettings() {
+            const endpoint = document.getElementById('apiEndpoint').value.trim();
+            if (!endpoint) {
+                alert('Please enter your API endpoint URL');
+                return;
+            }
+            apiEndpoint = endpoint;
+            localStorage.setItem('apiEndpoint', endpoint);
+            showMainMenu();
+        }
+
+        function showMainMenu() {
+            showScreen('mainMenu');
+        }
+
+        function showExercises() {
+            showScreen('exercisesMenu');
+        }
+
+        function showTestYourself() {
+            showScreen('testYourself');
+        }
+
+        function startExercise1() {
+            showScreen('exercise1');
+            currentSubjectIndex = 0;
+            updateExerciseDisplay();
+        }
+
+        // Exercise functions
+        async function updateExerciseDisplay() {
+            if (isLoading) return;
+            
+            const subject = allSubjects[currentSubjectIndex];
+            
+            // Show loading state
+            setLoadingState(true);
+            
+            try {
+                // Call your backend API which will use Anthropic
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        subject: subject,
+                        verb: currentVerb
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                
+                // Update sentences with API response
+                document.getElementById('sentence1').textContent = data.sentences[0];
+                document.getElementById('sentence2').textContent = data.sentences[1];
+                document.getElementById('sentence3').textContent = data.sentences[2];
+                document.getElementById('sentence4').textContent = data.sentences[3];
+                
+                // Update scheme info
+                document.getElementById('schemeInfo').textContent = data.schemeInfo;
+                
+                // Hide error message
+                document.getElementById('errorMessage').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to generate sentences. Using fallback logic.');
+                useFallbackLogic(subject);
+            } finally {
+                setLoadingState(false);
+            }
+            
+            // Update navigation buttons
+            document.getElementById('backBtn').disabled = currentSubjectIndex === 0;
+            document.getElementById('nextBtn').disabled = currentSubjectIndex === allSubjects.length - 1;
+            
+            // Update verb info
+            document.getElementById('currentVerb').textContent = `Current verb: ${currentVerb}`;
+        }
+
+        function setLoadingState(loading) {
+            isLoading = loading;
+            const buttons = ['backBtn', 'nextBtn', 'changeWordBtn'];
+            buttons.forEach(btnId => {
+                document.getElementById(btnId).disabled = loading || (btnId === 'backBtn' && currentSubjectIndex === 0) || (btnId === 'nextBtn' && currentSubjectIndex === allSubjects.length - 1);
+            });
+            
+            if (loading) {
+                document.querySelectorAll('.sentence').forEach(el => {
+                    el.innerHTML = 'Generating... <span class="loading"></span>';
+                });
+            }
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+        }
+
+        function useFallbackLogic(subject) {
+            // Simple fallback logic when API fails
+            const isThirdPersonSingular = ['he', 'she', 'it', 'my friend', 'your dog', 'his teacher'].includes(subject.toLowerCase());
+            
+            let verbForm = currentVerb;
+            let aux = 'do';
+            let auxNeg = "don't";
+            
+            if (isThirdPersonSingular) {
+                aux = 'does';
+                auxNeg = "doesn't";
+                if (currentVerb === 'go') verbForm = 'goes';
+                else if (currentVerb === 'fix') verbForm = 'fixes';
+                else if (currentVerb === 'get') verbForm = 'gets';
+            }
+            
+            document.getElementById('sentence1').textContent = `${subject} ${verbForm}`;
+            document.getElementById('sentence2').textContent = `${subject} ${auxNeg} ${currentVerb}`;
+            document.getElementById('sentence3').textContent = `${aux.charAt(0).toUpperCase() + aux.slice(1)} ${subject} ${currentVerb}?`;
+            document.getElementById('sentence4').textContent = `Where ${aux} ${subject} ${currentVerb}?`;
+            
+            document.getElementById('schemeInfo').textContent = isThirdPersonSingular ? 
+                'Scheme 2: he/she/it forms (third person singular)' : 
+                'Scheme 1: I/you/we/they forms';
+        }
+
+        function nextSubject() {
+            if (currentSubjectIndex < allSubjects.length - 1 && !isLoading) {
+                currentSubjectIndex++;
+                updateExerciseDisplay();
+            }
+        }
+
+        function previousSubject() {
+            if (currentSubjectIndex > 0 && !isLoading) {
+                currentSubjectIndex--;
+                updateExerciseDisplay();
+            }
+        }
+
+        function changeVerb() {
+            if (isLoading) return;
+            
+            // Get a random verb different from the current one
+            let newVerb;
+            do {
+                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
+            } while (newVerb === currentVerb);
+            
+            currentVerb = newVerb;
+            
+            // Get a random subject
+            currentSubjectIndex = Math.floor(Math.random() * allSubjects.length);
+            
+            updateExerciseDisplay();
+        }
+    </script>
+</body>
+</html>
