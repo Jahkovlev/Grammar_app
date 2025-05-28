@@ -269,14 +269,15 @@
 
         <!-- Exercises Menu -->
         <div id="exercisesMenu" class="screen hidden">
-            <h2>Exercises</h2>
-            <button class="menu-button" onclick="startExercise1()">Subject-Verb Agreement Practice</button>
+            <h2>Core Grammar</h2>
+            <button class="menu-button" onclick="startPresentSimple()">Present Simple</button>
+            <button class="menu-button" onclick="startPastSimple()">Past Simple</button>
             <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
         </div>
 
-        <!-- Exercise 1 -->
-        <div id="exercise1" class="screen hidden">
-            <h2>Subject-Verb Agreement</h2>
+        <!-- Present Simple Exercise -->
+        <div id="presentSimple" class="screen hidden">
+            <h2>Present Simple</h2>
             <p class="exercise-title">Practice changing subjects while keeping the same verb</p>
             
             <div class="verb-info" id="currentVerb">Current verb: go</div>
@@ -302,6 +303,34 @@
             <button class="back-button" onclick="showExercises()">Back to Exercises</button>
         </div>
 
+        <!-- Past Simple Exercise -->
+        <div id="pastSimple" class="screen hidden">
+            <h2>Past Simple</h2>
+            <p class="exercise-title">Practice changing subjects with past tense</p>
+            
+            <div class="verb-info" id="currentVerbPast">Current verb: go</div>
+            <div class="scheme-info" id="schemeInfoPast">Loading...</div>
+            
+            <div class="exercise-container">
+                <div id="sentenceDisplayPast">
+                    <div class="sentence" id="sentencePast1">Loading...</div>
+                    <div class="sentence" id="sentencePast2">Loading...</div>
+                    <div class="sentence" id="sentencePast3">Loading...</div>
+                    <div class="sentence" id="sentencePast4">Loading...</div>
+                </div>
+            </div>
+
+            <div id="errorMessagePast" class="error-message hidden"></div>
+
+            <div class="navigation-buttons">
+                <button class="nav-button" id="backBtnPast" onclick="previousSubjectPast()" disabled>Back</button>
+                <button class="nav-button" id="changeWordBtnPast" onclick="changeVerbPast()">Change the Word</button>
+                <button class="nav-button" id="nextBtnPast" onclick="nextSubjectPast()">Next</button>
+            </div>
+            
+            <button class="back-button" onclick="showExercises()">Back to Exercises</button>
+        </div>
+
         <!-- Test Yourself (Coming Soon) -->
         <div id="testYourself" class="screen hidden">
             <h2>Test Yourself</h2>
@@ -320,6 +349,10 @@
         let currentSubjectIndex = 0;
         let apiEndpoint = '';
         let isLoading = false;
+        
+        // State for Past Simple
+        let currentVerbPast = 'go';
+        let currentSubjectIndexPast = 0;
 
         // Navigation functions
         function showScreen(screenId) {
@@ -367,10 +400,16 @@
             showScreen('testYourself');
         }
 
-        function startExercise1() {
-            showScreen('exercise1');
+        function startPresentSimple() {
+            showScreen('presentSimple');
             currentSubjectIndex = 0;
             updateExerciseDisplay();
+        }
+
+        function startPastSimple() {
+            showScreen('pastSimple');
+            currentSubjectIndexPast = 0;
+            updatePastSimpleDisplay();
         }
 
         // Exercise functions
@@ -391,7 +430,8 @@
                     },
                     body: JSON.stringify({
                         subject: subject,
-                        verb: currentVerb
+                        verb: currentVerb,
+                        tense: 'present'
                     })
                 });
 
@@ -504,6 +544,125 @@
             currentSubjectIndex = Math.floor(Math.random() * allSubjects.length);
             
             updateExerciseDisplay();
+        }
+
+        // Past Simple Exercise Functions
+        async function updatePastSimpleDisplay() {
+            if (isLoading) return;
+            
+            const subject = allSubjects[currentSubjectIndexPast];
+            
+            // Show loading state
+            setLoadingStatePast(true);
+            
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        subject: subject,
+                        verb: currentVerbPast,
+                        tense: 'past'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                
+                // Update sentences with API response
+                document.getElementById('sentencePast1').textContent = data.sentences[0];
+                document.getElementById('sentencePast2').textContent = data.sentences[1];
+                document.getElementById('sentencePast3').textContent = data.sentences[2];
+                document.getElementById('sentencePast4').textContent = data.sentences[3];
+                
+                // Update scheme info
+                document.getElementById('schemeInfoPast').textContent = 'Past Simple: same form for all subjects';
+                
+                // Hide error message
+                document.getElementById('errorMessagePast').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showErrorPast('Failed to generate sentences. Using fallback logic.');
+                useFallbackLogicPast(subject);
+            } finally {
+                setLoadingStatePast(false);
+            }
+            
+            // Update navigation buttons
+            document.getElementById('backBtnPast').disabled = currentSubjectIndexPast === 0;
+            document.getElementById('nextBtnPast').disabled = currentSubjectIndexPast === allSubjects.length - 1;
+            
+            // Update verb info
+            document.getElementById('currentVerbPast').textContent = `Current verb: ${currentVerbPast}`;
+        }
+
+        function setLoadingStatePast(loading) {
+            isLoading = loading;
+            const buttons = ['backBtnPast', 'nextBtnPast', 'changeWordBtnPast'];
+            buttons.forEach(btnId => {
+                document.getElementById(btnId).disabled = loading || (btnId === 'backBtnPast' && currentSubjectIndexPast === 0) || (btnId === 'nextBtnPast' && currentSubjectIndexPast === allSubjects.length - 1);
+            });
+            
+            if (loading) {
+                document.querySelectorAll('#sentenceDisplayPast .sentence').forEach(el => {
+                    el.innerHTML = 'Generating... <span class="loading"></span>';
+                });
+            }
+        }
+
+        function showErrorPast(message) {
+            const errorEl = document.getElementById('errorMessagePast');
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+        }
+
+        function useFallbackLogicPast(subject) {
+            // Simple fallback for past tense
+            let pastForm = currentVerbPast === 'go' ? 'went' : currentVerbPast + 'ed';
+            
+            document.getElementById('sentencePast1').textContent = `${subject} ${pastForm}`;
+            document.getElementById('sentencePast2').textContent = `${subject} didn't ${currentVerbPast}`;
+            document.getElementById('sentencePast3').textContent = `Did ${subject} ${currentVerbPast}?`;
+            document.getElementById('sentencePast4').textContent = `Where did ${subject} ${currentVerbPast}?`;
+            
+            document.getElementById('schemeInfoPast').textContent = 'Past Simple: same form for all subjects';
+        }
+
+        function nextSubjectPast() {
+            if (currentSubjectIndexPast < allSubjects.length - 1 && !isLoading) {
+                currentSubjectIndexPast++;
+                updatePastSimpleDisplay();
+            }
+        }
+
+        function previousSubjectPast() {
+            if (currentSubjectIndexPast > 0 && !isLoading) {
+                currentSubjectIndexPast--;
+                updatePastSimpleDisplay();
+            }
+        }
+
+        function changeVerbPast() {
+            if (isLoading) return;
+            
+            // Get a random verb different from the current one
+            let newVerb;
+            do {
+                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
+            } while (newVerb === currentVerbPast);
+            
+            currentVerbPast = newVerb;
+            
+            // Get a random subject
+            currentSubjectIndexPast = Math.floor(Math.random() * allSubjects.length);
+            
+            updatePastSimpleDisplay();
         }
     </script>
 </body>
