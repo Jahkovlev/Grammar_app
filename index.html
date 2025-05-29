@@ -229,6 +229,14 @@
             margin-bottom: 5px;
         }
 
+        .nav-button.next-button {
+            background: #48bb78;
+        }
+        
+        .nav-button.next-button:hover {
+            background: #38a169;
+        }
+        
         .russian {
             font-size: 28px;
             color: #5a67d8;
@@ -238,6 +246,7 @@
             background: #e6f2ff;
             border-radius: 10px;
             text-align: center;
+            display: block !important;
         }
         
         .english {
@@ -395,7 +404,7 @@
             <div class="navigation-buttons">
                 <div class="button-row">
                     <button class="nav-button" id="backBtnFuture" onclick="previousSubjectFuture()">Back</button>
-                    <button class="nav-button" id="nextBtnFuture" onclick="nextSubjectFuture()">Next</button>
+                    <button class="nav-button next-button" id="nextBtnFuture" onclick="nextSubjectFuture()">Next</button>
                 </div>
                 <div class="button-row">
                     <button class="nav-button" onclick="playAudioFuture()">🔊 Play</button>
@@ -427,7 +436,7 @@
             <div class="navigation-buttons">
                 <div class="button-row">
                     <button class="nav-button" id="backBtnPast" onclick="previousSubjectPast()">Back</button>
-                    <button class="nav-button" id="nextBtnPast" onclick="nextSubjectPast()">Next</button>
+                    <button class="nav-button next-button" id="nextBtnPast" onclick="nextSubjectPast()">Next</button>
                 </div>
                 <div class="button-row">
                     <button class="nav-button" onclick="playAudioPast()">🔊 Play</button>
@@ -444,7 +453,7 @@
             
             <div class="exercise-container" id="testContainer" onclick="revealNext()">
                 <div class="test-item">
-                    <div class="sentence russian" id="russianSentence">Loading...</div>
+                    <div class="russian" id="russianSentence">Loading...</div>
                     <div class="sentence english hidden" id="englishPositive"></div>
                     <div class="sentence english hidden" id="englishNegative"></div>
                     <div class="sentence english hidden" id="englishQuestion"></div>
@@ -725,6 +734,9 @@
             // Hide all English sentences
             document.querySelectorAll('.english').forEach(el => el.classList.add('hidden'));
             
+            // Make sure Russian sentence is visible
+            document.getElementById('russianSentence').classList.remove('hidden');
+            
             // Show loading
             document.getElementById('russianSentence').textContent = 'Generating new example...';
             
@@ -758,6 +770,7 @@
                 
                 // Display Russian translation
                 document.getElementById('russianSentence').textContent = data.russian;
+                document.getElementById('russianSentence').classList.remove('hidden');
                 
                 // Store English sentences (hidden initially)
                 document.getElementById('englishPositive').textContent = data.sentences[0];
@@ -870,6 +883,7 @@
             
             // Display
             document.getElementById('russianSentence').textContent = russianSentence;
+            document.getElementById('russianSentence').classList.remove('hidden');
             document.getElementById('englishPositive').textContent = sentences[0];
             document.getElementById('englishNegative').textContent = sentences[1];
             document.getElementById('englishQuestion').textContent = sentences[2];
@@ -934,11 +948,6 @@
             if (revealStage < elements.length) {
                 document.getElementById(elements[revealStage]).classList.remove('hidden');
                 revealStage++;
-                
-                // Play audio for the revealed sentence
-                if (audioEnabled && currentTestData) {
-                    speak(document.getElementById(elements[revealStage - 1]).textContent);
-                }
                 
                 // Mark as complete when all revealed
                 if (revealStage === elements.length) {
