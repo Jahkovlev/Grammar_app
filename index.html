@@ -337,7 +337,7 @@
 
             <div class="navigation-buttons">
                 <div class="button-row">
-                    <button class="nav-button" id="backBtnFuture" onclick="previousSubjectFuture()" disabled>Back</button>
+                    <button class="nav-button" id="backBtnFuture" onclick="previousSubjectFuture()">Back</button>
                     <button class="nav-button" id="nextBtnFuture" onclick="nextSubjectFuture()">Next</button>
                 </div>
                 <div class="button-row">
@@ -369,7 +369,7 @@
 
             <div class="navigation-buttons">
                 <div class="button-row">
-                    <button class="nav-button" id="backBtnPast" onclick="previousSubjectPast()" disabled>Back</button>
+                    <button class="nav-button" id="backBtnPast" onclick="previousSubjectPast()">Back</button>
                     <button class="nav-button" id="nextBtnPast" onclick="nextSubjectPast()">Next</button>
                 </div>
                 <div class="button-row">
@@ -525,10 +525,7 @@
                 setLoadingStateFuture(false);
             }
             
-            // Update navigation buttons
-            document.getElementById('backBtnFuture').disabled = currentSubjectIndexFuture === 0;
-            document.getElementById('nextBtnFuture').disabled = currentSubjectIndexFuture === allSubjects.length - 1;
-            
+            // Update navigation buttons (never disable them since we loop)
             // Update verb info
             document.getElementById('currentVerbFuture').textContent = `Current verb: ${currentVerbFuture}`;
         }
@@ -537,7 +534,8 @@
             isLoading = loading;
             const buttons = ['backBtnFuture', 'nextBtnFuture', 'changeWordBtnFuture'];
             buttons.forEach(btnId => {
-                document.getElementById(btnId).disabled = loading || (btnId === 'backBtnFuture' && currentSubjectIndexFuture === 0) || (btnId === 'nextBtnFuture' && currentSubjectIndexFuture === allSubjects.length - 1);
+                const btn = document.getElementById(btnId);
+                if (btn) btn.disabled = loading;
             });
             
             if (loading) {
@@ -566,15 +564,21 @@
         }
 
         function nextSubjectFuture() {
-            if (currentSubjectIndexFuture < allSubjects.length - 1 && !isLoading) {
+            if (!isLoading) {
                 currentSubjectIndexFuture++;
+                if (currentSubjectIndexFuture >= allSubjects.length) {
+                    currentSubjectIndexFuture = 0; // Loop back to beginning
+                }
                 updateFutureSimpleDisplay();
             }
         }
 
         function previousSubjectFuture() {
-            if (currentSubjectIndexFuture > 0 && !isLoading) {
+            if (!isLoading) {
                 currentSubjectIndexFuture--;
+                if (currentSubjectIndexFuture < 0) {
+                    currentSubjectIndexFuture = allSubjects.length - 1; // Loop to end
+                }
                 updateFutureSimpleDisplay();
             }
         }
@@ -725,10 +729,7 @@
                 setLoadingState(false);
             }
             
-            // Update navigation buttons
-            document.getElementById('backBtn').disabled = currentSubjectIndex === 0;
-            document.getElementById('nextBtn').disabled = currentSubjectIndex === allSubjects.length - 1;
-            
+            // Update navigation buttons (never disable them since we loop)
             // Update verb info
             document.getElementById('currentVerb').textContent = `Current verb: ${currentVerb}`;
         }
@@ -737,7 +738,8 @@
             isLoading = loading;
             const buttons = ['backBtn', 'nextBtn', 'changeWordBtn'];
             buttons.forEach(btnId => {
-                document.getElementById(btnId).disabled = loading || (btnId === 'backBtn' && currentSubjectIndex === 0) || (btnId === 'nextBtn' && currentSubjectIndex === allSubjects.length - 1);
+                const btn = document.getElementById(btnId);
+                if (btn) btn.disabled = loading;
             });
             
             if (loading) {
@@ -843,15 +845,21 @@
         }
 
         function nextSubject() {
-            if (currentSubjectIndex < allSubjects.length - 1 && !isLoading) {
+            if (!isLoading) {
                 currentSubjectIndex++;
+                if (currentSubjectIndex >= allSubjects.length) {
+                    currentSubjectIndex = 0; // Loop back to beginning
+                }
                 updateExerciseDisplay();
             }
         }
 
         function previousSubject() {
-            if (currentSubjectIndex > 0 && !isLoading) {
+            if (!isLoading) {
                 currentSubjectIndex--;
+                if (currentSubjectIndex < 0) {
+                    currentSubjectIndex = allSubjects.length - 1; // Loop to end
+                }
                 updateExerciseDisplay();
             }
         }
@@ -921,10 +929,7 @@
                 setLoadingStatePast(false);
             }
             
-            // Update navigation buttons
-            document.getElementById('backBtnPast').disabled = currentSubjectIndexPast === 0;
-            document.getElementById('nextBtnPast').disabled = currentSubjectIndexPast === allSubjects.length - 1;
-            
+            // Update navigation buttons (never disable them since we loop)
             // Update verb info
             document.getElementById('currentVerbPast').textContent = `Current verb: ${currentVerbPast}`;
         }
@@ -933,7 +938,8 @@
             isLoading = loading;
             const buttons = ['backBtnPast', 'nextBtnPast', 'changeWordBtnPast'];
             buttons.forEach(btnId => {
-                document.getElementById(btnId).disabled = loading || (btnId === 'backBtnPast' && currentSubjectIndexPast === 0) || (btnId === 'nextBtnPast' && currentSubjectIndexPast === allSubjects.length - 1);
+                const btn = document.getElementById(btnId);
+                if (btn) btn.disabled = loading;
             });
             
             if (loading) {
@@ -998,15 +1004,21 @@
         }
 
         function nextSubjectPast() {
-            if (currentSubjectIndexPast < allSubjects.length - 1 && !isLoading) {
+            if (!isLoading) {
                 currentSubjectIndexPast++;
+                if (currentSubjectIndexPast >= allSubjects.length) {
+                    currentSubjectIndexPast = 0; // Loop back to beginning
+                }
                 updatePastSimpleDisplay();
             }
         }
 
         function previousSubjectPast() {
-            if (currentSubjectIndexPast > 0 && !isLoading) {
+            if (!isLoading) {
                 currentSubjectIndexPast--;
+                if (currentSubjectIndexPast < 0) {
+                    currentSubjectIndexPast = allSubjects.length - 1; // Loop to end
+                }
                 updatePastSimpleDisplay();
             }
         }
