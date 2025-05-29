@@ -454,10 +454,10 @@
             <div class="exercise-container" id="testContainer" onclick="revealNext()">
                 <div class="test-item">
                     <div class="russian" id="russianSentence">Loading...</div>
-                    <div class="sentence english hidden" id="englishPositive"></div>
-                    <div class="sentence english hidden" id="englishNegative"></div>
-                    <div class="sentence english hidden" id="englishQuestion"></div>
-                    <div class="sentence english hidden" id="englishWhQuestion"></div>
+                    <div class="english hidden" id="englishPositive"></div>
+                    <div class="english hidden" id="englishNegative"></div>
+                    <div class="english hidden" id="englishQuestion"></div>
+                    <div class="english hidden" id="englishWhQuestion"></div>
                 </div>
             </div>
             
@@ -731,11 +731,13 @@
             // Reset complete state
             document.getElementById('testContainer').classList.remove('complete');
             
-            // Hide all English sentences
-            document.querySelectorAll('.english').forEach(el => el.classList.add('hidden'));
-            
-            // Make sure Russian sentence is visible
+            // Ensure Russian is visible and all English sentences are hidden
+            document.getElementById('russianSentence').style.display = 'block';
             document.getElementById('russianSentence').classList.remove('hidden');
+            document.querySelectorAll('.english').forEach(el => {
+                el.classList.add('hidden');
+                el.style.display = 'none';
+            });
             
             // Show loading
             document.getElementById('russianSentence').textContent = 'Generating new example...';
@@ -768,15 +770,20 @@
                 const data = await response.json();
                 currentTestData = data;
                 
-                // Display Russian translation
-                document.getElementById('russianSentence').textContent = data.russian;
-                document.getElementById('russianSentence').classList.remove('hidden');
+                // Display Russian translation (ensure it's visible)
+                const russianEl = document.getElementById('russianSentence');
+                russianEl.textContent = data.russian;
+                russianEl.classList.remove('hidden');
+                russianEl.style.display = 'block';
                 
-                // Store English sentences (hidden initially)
-                document.getElementById('englishPositive').textContent = data.sentences[0];
-                document.getElementById('englishNegative').textContent = data.sentences[1];
-                document.getElementById('englishQuestion').textContent = data.sentences[2];
-                document.getElementById('englishWhQuestion').textContent = data.sentences[3];
+                // Store English sentences (ensure they're hidden)
+                const englishIds = ['englishPositive', 'englishNegative', 'englishQuestion', 'englishWhQuestion'];
+                englishIds.forEach((id, index) => {
+                    const el = document.getElementById(id);
+                    el.textContent = data.sentences[index];
+                    el.classList.add('hidden');
+                    el.style.display = 'none';
+                });
                 
                 // Hide error message
                 document.getElementById('testError').classList.add('hidden');
@@ -881,13 +888,25 @@
                 }
             }
             
-            // Display
-            document.getElementById('russianSentence').textContent = russianSentence;
-            document.getElementById('russianSentence').classList.remove('hidden');
-            document.getElementById('englishPositive').textContent = sentences[0];
-            document.getElementById('englishNegative').textContent = sentences[1];
-            document.getElementById('englishQuestion').textContent = sentences[2];
-            document.getElementById('englishWhQuestion').textContent = sentences[3];
+            // Display (ensure Russian visible, English hidden)
+            const russianEl = document.getElementById('russianSentence');
+            russianEl.textContent = russianSentence;
+            russianEl.classList.remove('hidden');
+            russianEl.style.display = 'block';
+            
+            const englishData = [
+                {id: 'englishPositive', text: sentences[0]},
+                {id: 'englishNegative', text: sentences[1]},
+                {id: 'englishQuestion', text: sentences[2]},
+                {id: 'englishWhQuestion', text: sentences[3]}
+            ];
+            
+            englishData.forEach(item => {
+                const el = document.getElementById(item.id);
+                el.textContent = item.text;
+                el.classList.add('hidden');
+                el.style.display = 'none';
+            });
             
             currentTestData = { sentences: sentences };
         }
@@ -946,7 +965,9 @@
             ];
             
             if (revealStage < elements.length) {
-                document.getElementById(elements[revealStage]).classList.remove('hidden');
+                const element = document.getElementById(elements[revealStage]);
+                element.classList.remove('hidden');
+                element.style.display = 'block';
                 revealStage++;
                 
                 // Mark as complete when all revealed
