@@ -104,17 +104,21 @@
 
         .navigation-buttons {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             margin-top: 20px;
-            flex-wrap: wrap;
             gap: 10px;
         }
 
         .button-row {
             display: flex;
-            justify-content: center;
-            gap: 10px;
+            justify-content: space-between;
             width: 100%;
+            max-width: 350px;
+        }
+        
+        .navigation-buttons .back-button {
+            margin-top: 10px;
         }
 
         .nav-button {
@@ -340,9 +344,8 @@
                     <button class="nav-button" onclick="playAudioFuture()">🔊 Play</button>
                     <button class="nav-button" id="changeWordBtnFuture" onclick="changeVerbFuture()">Change the Word</button>
                 </div>
+                <button class="back-button" onclick="showExercises()">Back to Exercises</button>
             </div>
-            
-            <button class="back-button" onclick="showExercises()">Back to Exercises</button>
         </div>
 
         <!-- Past Simple Exercise -->
@@ -373,9 +376,8 @@
                     <button class="nav-button" onclick="playAudioPast()">🔊 Play</button>
                     <button class="nav-button" id="changeWordBtnPast" onclick="changeVerbPast()">Change the Word</button>
                 </div>
+                <button class="back-button" onclick="showExercises()">Back to Exercises</button>
             </div>
-            
-            <button class="back-button" onclick="showExercises()">Back to Exercises</button>
         </div>
 
         <!-- Test Yourself (Coming Soon) -->
