@@ -790,8 +790,8 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('testError').textContent = 'Failed to generate test. Using fallback.';
-                document.getElementById('testError').classList.remove('hidden');
+                // Don't show error message when using fallback
+                document.getElementById('testError').classList.add('hidden');
                 generateFallbackTest();
             }
         }
