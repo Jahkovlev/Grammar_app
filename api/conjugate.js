@@ -48,7 +48,7 @@ Generate EXACTLY 4 sentences following these patterns:
 4. Where did [subject] [base verb]?
 
 Rules:
-- Use the correct past form (went for go, fixed for fix, got for get, add -ed for regular verbs)
+- Use the correct past form (went for go, fixed for fix, got for get, ate for eat, took for take, made for make, read for read, wrote for write, spoke for speak, worked for work, played for play, studied for study)
 - Past Simple uses "didn't" and "did" for ALL subjects
 - Questions use "did" + base form of verb
 - ONLY output the 4 sentences, one per line
@@ -72,6 +72,48 @@ My friends got
 My friends didn't get
 Did my friends get?
 Where did my friends get?
+
+Now generate for Subject: "${subject}", Verb: "${verb}"`;
+        } else if (tense === 'future') {
+            prompt = `You are a grammar assistant. Your ONLY job is to conjugate English verbs correctly in FUTURE SIMPLE tense.
+
+Given:
+- Subject: "${subject}"
+- Verb: "${verb}"
+- Tense: Future Simple
+
+Generate EXACTLY 4 sentences following these patterns:
+1. [Subject] will [base verb]
+2. [Subject] won't [base verb]
+3. Will [subject] [base verb]?
+4. Where will [subject] [base verb]?
+
+Rules:
+- Future Simple uses "will" for ALL subjects
+- Negative uses "won't" (will not)
+- Questions start with "Will"
+- Always use base form of verb after will/won't
+- ONLY output the 4 sentences, one per line
+- NO explanations, NO additional text
+
+Examples:
+Subject: "I", Verb: "go"
+I will go
+I won't go
+Will I go?
+Where will I go?
+
+Subject: "she", Verb: "fix"
+She will fix
+She won't fix
+Will she fix?
+Where will she fix?
+
+Subject: "my friends", Verb: "eat"
+My friends will eat
+My friends won't eat
+Will my friends eat?
+Where will my friends eat?
 
 Now generate for Subject: "${subject}", Verb: "${verb}"`;
         } else {
@@ -132,6 +174,8 @@ Now generate for Subject: "${subject}", Verb: "${verb}"`;
         let schemeInfo;
         if (tense === 'past') {
             schemeInfo = 'Past Simple: same form for all subjects';
+        } else if (tense === 'future') {
+            schemeInfo = 'Future Simple: will + base verb for all subjects';
         } else {
             const isScheme2 = sentences[0].includes(verb + 's') || sentences[0].includes(verb + 'es');
             schemeInfo = isScheme2 
