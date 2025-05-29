@@ -229,6 +229,63 @@
             margin-bottom: 5px;
         }
 
+        .russian {
+            font-size: 28px;
+            color: #5a67d8;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #e6f2ff;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .english {
+            font-size: 22px;
+            color: #2d3748;
+            margin: 10px 0;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .test-item {
+            cursor: pointer;
+            user-select: none;
+            width: 100%;
+        }
+        
+        #testContainer {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        #testContainer:after {
+            content: 'Tap to reveal';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 14px;
+            color: #a0aec0;
+            font-style: italic;
+        }
+        
+        #testContainer.complete:after {
+            content: 'Complete! Try a new example';
+        }
+        
         @media (max-width: 480px) {
             .container {
                 padding: 20px;
@@ -380,11 +437,27 @@
             </div>
         </div>
 
-        <!-- Test Yourself (Coming Soon) -->
+        <!-- Test Yourself -->
         <div id="testYourself" class="screen hidden">
             <h2>Test Yourself</h2>
-            <p class="welcome-text">Coming soon! This feature will test your knowledge of the grammar patterns you've practiced.</p>
-            <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
+            <p class="exercise-title">Translate this sentence and put it in the negative, question and wh-question form.<br>Tap the example to see the translation.</p>
+            
+            <div class="exercise-container" id="testContainer" onclick="revealNext()">
+                <div class="test-item">
+                    <div class="sentence russian" id="russianSentence">Loading...</div>
+                    <div class="sentence english hidden" id="englishPositive"></div>
+                    <div class="sentence english hidden" id="englishNegative"></div>
+                    <div class="sentence english hidden" id="englishQuestion"></div>
+                    <div class="sentence english hidden" id="englishWhQuestion"></div>
+                </div>
+            </div>
+            
+            <div id="testError" class="error-message hidden"></div>
+            
+            <div class="navigation-buttons">
+                <button class="nav-button" onclick="generateNewTest()">New Example</button>
+                <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
+            </div>
         </div>
     </div>
 
@@ -418,6 +491,10 @@
         
         // Audio settings
         let audioEnabled = true;
+        
+        // Test Yourself state
+        let currentTestData = null;
+        let revealStage = 0;
 
         // Navigation functions
         function showScreen(screenId) {
@@ -463,6 +540,7 @@
 
         function showTestYourself() {
             showScreen('testYourself');
+            generateNewTest();
         }
 
         function startPresentSimple() {
@@ -634,6 +712,239 @@
                 }
             }
             speakNext();
+        }
+
+        // Test Yourself Functions
+        async function generateNewTest() {
+            // Reset reveal stage
+            revealStage = 0;
+            
+            // Reset complete state
+            document.getElementById('testContainer').classList.remove('complete');
+            
+            // Hide all English sentences
+            document.querySelectorAll('.english').forEach(el => el.classList.add('hidden'));
+            
+            // Show loading
+            document.getElementById('russianSentence').textContent = 'Generating new example...';
+            
+            try {
+                // Get random subject, verb, and tense
+                const randomSubject = allSubjects[Math.floor(Math.random() * allSubjects.length)];
+                const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+                const tenses = ['present', 'past', 'future'];
+                const randomTense = tenses[Math.floor(Math.random() * tenses.length)];
+                
+                // Call API to generate test
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        subject: randomSubject,
+                        verb: randomVerb,
+                        tense: randomTense,
+                        mode: 'test'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                currentTestData = data;
+                
+                // Display Russian translation
+                document.getElementById('russianSentence').textContent = data.russian;
+                
+                // Store English sentences (hidden initially)
+                document.getElementById('englishPositive').textContent = data.sentences[0];
+                document.getElementById('englishNegative').textContent = data.sentences[1];
+                document.getElementById('englishQuestion').textContent = data.sentences[2];
+                document.getElementById('englishWhQuestion').textContent = data.sentences[3];
+                
+                // Hide error message
+                document.getElementById('testError').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('testError').textContent = 'Failed to generate test. Using fallback.';
+                document.getElementById('testError').classList.remove('hidden');
+                generateFallbackTest();
+            }
+        }
+        
+        function generateFallbackTest() {
+            // Fallback test generation
+            const randomSubject = allSubjects[Math.floor(Math.random() * allSubjects.length)];
+            const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+            const tenses = ['present', 'past', 'future'];
+            const randomTense = tenses[Math.floor(Math.random() * tenses.length)];
+            
+            // Natural Russian translations
+            const russianTranslations = {
+                present: {
+                    'I go': 'Я иду', 'you go': 'Ты идёшь', 'he goes': 'Он идёт',
+                    'she goes': 'Она идёт', 'it goes': 'Оно идёт', 'we go': 'Мы идём', 'they go': 'Они идут',
+                    'I eat': 'Я ем', 'you eat': 'Ты ешь', 'he eats': 'Он ест',
+                    'she eats': 'Она ест', 'we eat': 'Мы едим', 'they eat': 'Они едят',
+                    'I work': 'Я работаю', 'he works': 'Он работает', 'they work': 'Они работают',
+                    'I read': 'Я читаю', 'she reads': 'Она читает', 'we read': 'Мы читаем'
+                },
+                past: {
+                    'I went': 'Я ходил(а)', 'you went': 'Ты ходил(а)', 'he went': 'Он ходил',
+                    'she went': 'Она ходила', 'we went': 'Мы ходили', 'they went': 'Они ходили',
+                    'I ate': 'Я ел(а)', 'he ate': 'Он ел', 'she ate': 'Она ела',
+                    'I worked': 'Я работал(а)', 'they worked': 'Они работали'
+                },
+                future: {
+                    'I will go': 'Я пойду', 'you will go': 'Ты пойдёшь', 'he will go': 'Он пойдёт',
+                    'she will go': 'Она пойдёт', 'we will go': 'Мы пойдём', 'they will go': 'Они пойдут',
+                    'I will eat': 'Я буду есть', 'he will eat': 'Он будет есть',
+                    'I will work': 'Я буду работать', 'she will work': 'Она будет работать'
+                }
+            };
+            
+            // Generate sentences based on tense
+            let sentences = [];
+            let russianSentence = '';
+            let whWord = getWhWord(randomVerb);
+            
+            if (randomTense === 'present') {
+                const verbForm = getVerbFormForSubject(randomSubject, randomVerb);
+                const positive = `${randomSubject} ${verbForm}`;
+                sentences = [
+                    positive,
+                    `${randomSubject} ${randomSubject === 'he' || randomSubject === 'she' || randomSubject === 'it' ? "doesn't" : "don't"} ${randomVerb}`,
+                    `${randomSubject === 'he' || randomSubject === 'she' || randomSubject === 'it' ? "Does" : "Do"} ${randomSubject} ${randomVerb}?`,
+                    `${whWord} ${randomSubject === 'he' || randomSubject === 'she' || randomSubject === 'it' ? "does" : "do"} ${randomSubject} ${randomVerb}?`
+                ];
+                russianSentence = russianTranslations.present[positive] || `${randomSubject} ${randomVerb} (настоящее)`;
+            } else if (randomTense === 'past') {
+                const pastForm = getPastForm(randomVerb);
+                const positive = `${randomSubject} ${pastForm}`;
+                sentences = [
+                    positive,
+                    `${randomSubject} didn't ${randomVerb}`,
+                    `Did ${randomSubject} ${randomVerb}?`,
+                    `${whWord} did ${randomSubject} ${randomVerb}?`
+                ];
+                russianSentence = russianTranslations.past[positive] || `${randomSubject} ${randomVerb} (прошедшее)`;
+            } else {
+                const positive = `${randomSubject} will ${randomVerb}`;
+                sentences = [
+                    positive,
+                    `${randomSubject} won't ${randomVerb}`,
+                    `Will ${randomSubject} ${randomVerb}?`,
+                    `${whWord} will ${randomSubject} ${randomVerb}?`
+                ];
+                russianSentence = russianTranslations.future[positive] || `${randomSubject} ${randomVerb} (будущее)`;
+            }
+            
+            // Handle 'be' verb specially
+            if (randomVerb === 'be') {
+                if (randomTense === 'present') {
+                    let beForm = randomSubject === 'I' ? 'am' : 
+                               (randomSubject === 'he' || randomSubject === 'she' || randomSubject === 'it') ? 'is' : 'are';
+                    sentences[0] = `${randomSubject} ${beForm}`;
+                    sentences[1] = `${randomSubject} ${beForm} not`;
+                    sentences[2] = `${beForm.charAt(0).toUpperCase() + beForm.slice(1)} ${randomSubject}?`;
+                    sentences[3] = `Where ${beForm} ${randomSubject}?`;
+                    russianSentence = `${randomSubject === 'I' ? 'Я' : randomSubject === 'he' ? 'Он' : 
+                                      randomSubject === 'she' ? 'Она' : randomSubject === 'you' ? 'Ты' :
+                                      randomSubject === 'we' ? 'Мы' : randomSubject === 'they' ? 'Они' : 'Это'} 
+                                      ${beForm === 'am' || beForm === 'is' ? 'есть' : 'есть'}`;
+                } else if (randomTense === 'past') {
+                    let wasWere = ['I', 'he', 'she', 'it'].includes(randomSubject) ? 'was' : 'were';
+                    sentences[0] = `${randomSubject} ${wasWere}`;
+                    sentences[1] = `${randomSubject} ${wasWere}n't`;
+                    sentences[2] = `${wasWere.charAt(0).toUpperCase() + wasWere.slice(1)} ${randomSubject}?`;
+                    sentences[3] = `Where ${wasWere} ${randomSubject}?`;
+                    russianSentence = `${randomSubject === 'I' ? 'Я был(а)' : randomSubject === 'he' ? 'Он был' :
+                                      randomSubject === 'she' ? 'Она была' : randomSubject === 'you' ? 'Ты был(а)' :
+                                      randomSubject === 'we' ? 'Мы были' : randomSubject === 'they' ? 'Они были' : 'Это было'}`;
+                }
+            }
+            
+            // Display
+            document.getElementById('russianSentence').textContent = russianSentence;
+            document.getElementById('englishPositive').textContent = sentences[0];
+            document.getElementById('englishNegative').textContent = sentences[1];
+            document.getElementById('englishQuestion').textContent = sentences[2];
+            document.getElementById('englishWhQuestion').textContent = sentences[3];
+            
+            currentTestData = { sentences: sentences };
+        }
+        
+        function getVerbFormForSubject(subject, verb) {
+            const isThirdPerson = ['he', 'she', 'it'].includes(subject.toLowerCase());
+            
+            if (verb === 'be') {
+                if (subject === 'I') return 'am';
+                if (isThirdPerson) return 'is';
+                return 'are';
+            }
+            
+            if (!isThirdPerson) return verb;
+            
+            if (verb === 'have') return 'has';
+            if (verb === 'do') return 'does';
+            
+            if (verb.endsWith('y') && !['a','e','i','o','u'].includes(verb[verb.length-2])) {
+                return verb.slice(0, -1) + 'ies';
+            } else if (verb.endsWith('o') || verb.endsWith('s') || verb.endsWith('x') || verb.endsWith('ch') || verb.endsWith('sh')) {
+                return verb + 'es';
+            }
+            return verb + 's';
+        }
+        
+        function getPastForm(verb) {
+            const irregulars = {
+                'go': 'went', 'get': 'got', 'eat': 'ate', 'take': 'took', 'make': 'made',
+                'write': 'wrote', 'speak': 'spoke', 'read': 'read', 'be': 'was/were',
+                'beat': 'beat', 'become': 'became', 'begin': 'began',
+                'break': 'broke', 'bring': 'brought', 'build': 'built',
+                'buy': 'bought', 'catch': 'caught', 'choose': 'chose',
+                'come': 'came', 'cost': 'cost', 'do': 'did',
+                'draw': 'drew', 'dream': 'dreamt', 'drink': 'drank',
+                'drive': 'drove', 'fall': 'fell', 'feel': 'felt',
+                'find': 'found', 'fly': 'flew', 'give': 'gave',
+                'grow': 'grew', 'have': 'had', 'hear': 'heard',
+                'know': 'knew', 'learn': 'learnt', 'leave': 'left',
+                'lie': 'lay', 'meet': 'met', 'put': 'put',
+                'run': 'ran', 'say': 'said', 'see': 'saw',
+                'seek': 'sought', 'show': 'showed', 'sing': 'sang',
+                'sit': 'sat', 'sleep': 'slept', 'stand': 'stood',
+                'swim': 'swam', 'teach': 'taught', 'tell': 'told',
+                'think': 'thought', 'throw': 'threw', 'understand': 'understood'
+            };
+            return irregulars[verb] || verb + 'ed';
+        }
+        
+        function revealNext() {
+            const elements = [
+                'englishPositive',
+                'englishNegative', 
+                'englishQuestion',
+                'englishWhQuestion'
+            ];
+            
+            if (revealStage < elements.length) {
+                document.getElementById(elements[revealStage]).classList.remove('hidden');
+                revealStage++;
+                
+                // Play audio for the revealed sentence
+                if (audioEnabled && currentTestData) {
+                    speak(document.getElementById(elements[revealStage - 1]).textContent);
+                }
+                
+                // Mark as complete when all revealed
+                if (revealStage === elements.length) {
+                    document.getElementById('testContainer').classList.add('complete');
+                }
+            }
         }
 
         function playAudioPast() {
