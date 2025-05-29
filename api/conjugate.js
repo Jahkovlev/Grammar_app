@@ -48,9 +48,10 @@ Generate EXACTLY 4 sentences following these patterns:
 4. Where did [subject] [base verb]?
 
 Rules:
-- Use the correct past form (went for go, fixed for fix, got for get, ate for eat, took for take, made for make, read for read, wrote for write, spoke for speak, worked for work, played for play, studied for study)
-- Past Simple uses "didn't" and "did" for ALL subjects
-- Questions use "did" + base form of verb
+- Use the correct past form: be→was/were, beat→beat, become→became, begin→began, break→broke, bring→brought, build→built, buy→bought, catch→caught, choose→chose, come→came, cost→cost, do→did, draw→drew, dream→dreamt, drink→drank, drive→drove, eat→ate, fall→fell, feel→felt, find→found, fix→fixed, fly→flew, get→got, give→gave, go→went, grow→grew, have→had, hear→heard, know→knew, learn→learnt, leave→left, lie→lay, make→made, meet→met, play→played, put→put, read→read, run→ran, say→said, see→saw, seek→sought, show→showed, sing→sang, sit→sat, sleep→slept, speak→spoke, stand→stood, study→studied, swim→swam, take→took, teach→taught, tell→told, think→thought, throw→threw, understand→understood, work→worked, write→wrote
+- For 'be': use 'was' with I/he/she/it, use 'were' with you/we/they. Negative: wasn't/weren't. Questions: Was I? Were they?
+- For all other verbs: Past Simple uses "didn't" and "did" for ALL subjects
+- Questions use auxiliary + base form of verb (Did he go? Was she?)
 - ONLY output the 4 sentences, one per line
 - NO explanations, NO additional text
 
@@ -66,6 +67,18 @@ She fixed
 She didn't fix
 Did she fix?
 Where did she fix?
+
+Subject: "I", Verb: "be"
+I was
+I wasn't
+Was I?
+Where was I?
+
+Subject: "they", Verb: "be"
+They were
+They weren't
+Were they?
+Where were they?
 
 Subject: "my friends", Verb: "get"
 My friends got
@@ -133,6 +146,8 @@ Generate EXACTLY 4 sentences following these patterns:
 Rules:
 - For I/you/we/they/plural nouns: use base form of verb, "don't", "do"
 - For he/she/it/singular nouns: add -s/-es to verb, use "doesn't", "does"
+- Special cases: be (am/is/are), have (has), do (does)
+- For 'be': I am, you/we/they are, he/she/it is. Questions: Am I? Is he? Are they? Negatives: I am not, he is not, they are not
 - ONLY output the 4 sentences, one per line
 - NO explanations, NO additional text
 
@@ -148,6 +163,18 @@ She goes
 She doesn't go
 Does she go?
 Where does she go?
+
+Subject: "I", Verb: "be"
+I am
+I am not
+Am I?
+Where am I?
+
+Subject: "they", Verb: "be"
+They are
+They are not
+Are they?
+Where are they?
 
 Subject: "my friends", Verb: "fix"
 My friends fix
