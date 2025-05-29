@@ -104,9 +104,17 @@
 
         .navigation-buttons {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             margin-top: 20px;
             flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
         }
 
         .nav-button {
@@ -324,10 +332,14 @@
             <div id="errorMessageFuture" class="error-message hidden"></div>
 
             <div class="navigation-buttons">
-                <button class="nav-button" id="backBtnFuture" onclick="previousSubjectFuture()" disabled>Back</button>
-                <button class="nav-button" id="changeWordBtnFuture" onclick="changeVerbFuture()">Change the Word</button>
-                <button class="nav-button" onclick="playAudioFuture()">🔊 Play</button>
-                <button class="nav-button" id="nextBtnFuture" onclick="nextSubjectFuture()">Next</button>
+                <div class="button-row">
+                    <button class="nav-button" id="backBtnFuture" onclick="previousSubjectFuture()" disabled>Back</button>
+                    <button class="nav-button" id="nextBtnFuture" onclick="nextSubjectFuture()">Next</button>
+                </div>
+                <div class="button-row">
+                    <button class="nav-button" onclick="playAudioFuture()">🔊 Play</button>
+                    <button class="nav-button" id="changeWordBtnFuture" onclick="changeVerbFuture()">Change the Word</button>
+                </div>
             </div>
             
             <button class="back-button" onclick="showExercises()">Back to Exercises</button>
@@ -353,10 +365,14 @@
             <div id="errorMessagePast" class="error-message hidden"></div>
 
             <div class="navigation-buttons">
-                <button class="nav-button" id="backBtnPast" onclick="previousSubjectPast()" disabled>Back</button>
-                <button class="nav-button" id="changeWordBtnPast" onclick="changeVerbPast()">Change the Word</button>
-                <button class="nav-button" onclick="playAudioPast()">🔊 Play</button>
-                <button class="nav-button" id="nextBtnPast" onclick="nextSubjectPast()">Next</button>
+                <div class="button-row">
+                    <button class="nav-button" id="backBtnPast" onclick="previousSubjectPast()" disabled>Back</button>
+                    <button class="nav-button" id="nextBtnPast" onclick="nextSubjectPast()">Next</button>
+                </div>
+                <div class="button-row">
+                    <button class="nav-button" onclick="playAudioPast()">🔊 Play</button>
+                    <button class="nav-button" id="changeWordBtnPast" onclick="changeVerbPast()">Change the Word</button>
+                </div>
             </div>
             
             <button class="back-button" onclick="showExercises()">Back to Exercises</button>
