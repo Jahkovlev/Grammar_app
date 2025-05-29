@@ -400,7 +400,7 @@
             'put', 'run', 'say', 'see', 'seek', 'show', 'sing', 'sit', 'sleep', 'stand',
             'swim', 'teach', 'tell', 'think', 'throw', 'understand'
         ];
-        const allSubjects = ['I', 'you', 'he', 'she', 'it', 'we', 'they', 'my friend', 'my friends', 'your dog', 'your dogs', 'his teacher', 'his teachers'];
+        const allSubjects = ['I', 'you', 'he', 'she', 'it', 'we', 'they'];
 
         // State
         let currentVerb = 'go';
@@ -555,10 +555,12 @@
 
         function useFallbackLogicFuture(subject) {
             // Simple fallback for future tense
+            let whWord = getWhWord(currentVerbFuture);
+            
             document.getElementById('sentenceFuture1').textContent = `${subject} will ${currentVerbFuture}`;
             document.getElementById('sentenceFuture2').textContent = `${subject} won't ${currentVerbFuture}`;
             document.getElementById('sentenceFuture3').textContent = `Will ${subject} ${currentVerbFuture}?`;
-            document.getElementById('sentenceFuture4').textContent = `Where will ${subject} ${currentVerbFuture}?`;
+            document.getElementById('sentenceFuture4').textContent = `${whWord} will ${subject} ${currentVerbFuture}?`;
             
             document.getElementById('schemeInfoFuture').textContent = 'Future Simple: will + base verb for all subjects';
         }
@@ -753,11 +755,12 @@
 
         function useFallbackLogic(subject) {
             // Simple fallback logic when API fails
-            const isThirdPersonSingular = ['he', 'she', 'it', 'my friend', 'your dog', 'his teacher'].includes(subject.toLowerCase());
+            const isThirdPersonSingular = ['he', 'she', 'it'].includes(subject.toLowerCase());
             
             let verbForm = currentVerb;
             let aux = 'do';
             let auxNeg = "don't";
+            let whWord = getWhWord(currentVerb);
             
             // Special cases for irregular present forms
             if (currentVerb === 'be') {
@@ -790,17 +793,53 @@
                 document.getElementById('sentence1').textContent = `${subject} ${verbForm}`;
                 document.getElementById('sentence2').textContent = `${subject} ${verbForm} not`;
                 document.getElementById('sentence3').textContent = `${verbForm.charAt(0).toUpperCase() + verbForm.slice(1)} ${subject}?`;
-                document.getElementById('sentence4').textContent = `Where ${verbForm} ${subject}?`;
+                document.getElementById('sentence4').textContent = `${whWord} ${verbForm} ${subject}?`;
             } else {
                 document.getElementById('sentence1').textContent = `${subject} ${verbForm}`;
                 document.getElementById('sentence2').textContent = `${subject} ${auxNeg} ${currentVerb}`;
                 document.getElementById('sentence3').textContent = `${aux.charAt(0).toUpperCase() + aux.slice(1)} ${subject} ${currentVerb}?`;
-                document.getElementById('sentence4').textContent = `Where ${aux} ${subject} ${currentVerb}?`;
+                document.getElementById('sentence4').textContent = `${whWord} ${aux} ${subject} ${currentVerb}?`;
             }
             
             document.getElementById('schemeInfo').textContent = isThirdPersonSingular ? 
                 'Scheme 2: he/she/it forms (third person singular)' : 
                 'Scheme 1: I/you/we/they forms';
+        }
+        
+        function getWhWord(verb) {
+            const whWords = {
+                // Movement verbs
+                'go': 'Where', 'come': 'Where', 'drive': 'Where', 'fly': 'Where', 
+                'run': 'Where', 'walk': 'Where', 'swim': 'Where', 'sit': 'Where',
+                'stand': 'Where', 'put': 'Where', 'throw': 'Where', 'fall': 'Where', 'be': 'Where',
+                
+                // Action/creation verbs
+                'do': 'What', 'make': 'What', 'say': 'What', 'eat': 'What',
+                'drink': 'What', 'buy': 'What', 'read': 'What', 'write': 'What',
+                'draw': 'What', 'build': 'What', 'fix': 'What', 'choose': 'What',
+                'think': 'What', 'dream': 'What', 'break': 'What', 'catch': 'What',
+                'give': 'What', 'take': 'What', 'bring': 'What', 'see': 'What',
+                'hear': 'What', 'feel': 'What', 'have': 'What', 'get': 'What',
+                'find': 'What', 'seek': 'What', 'show': 'What', 'sing': 'What',
+                
+                // People-related verbs
+                'meet': 'Who', 'teach': 'Who', 'beat': 'Who', 'tell': 'Who', 'know': 'Who',
+                
+                // Time-related verbs
+                'begin': 'When', 'leave': 'When', 'sleep': 'When', 'work': 'When',
+                'study': 'When', 'play': 'When',
+                
+                // Cost
+                'cost': 'How much',
+                
+                // Reason
+                'cry': 'Why', 'understand': 'Why',
+                
+                // Manner
+                'speak': 'How', 'grow': 'How', 'learn': 'How', 'lie': 'How'
+            };
+            
+            return whWords[verb] || 'What';
         }
 
         function nextSubject() {
@@ -934,10 +973,11 @@
             };
             
             let pastForm = irregularPast[currentVerbPast] || currentVerbPast + 'ed';
+            let whWord = getWhWord(currentVerbPast);
             
             // Special handling for 'be'
             if (currentVerbPast === 'be') {
-                if (['I', 'he', 'she', 'it', 'my friend', 'your dog', 'his teacher'].includes(subject)) {
+                if (['I', 'he', 'she', 'it'].includes(subject)) {
                     pastForm = 'was';
                 } else {
                     pastForm = 'were';
@@ -946,12 +986,12 @@
                 document.getElementById('sentencePast1').textContent = `${subject} ${pastForm}`;
                 document.getElementById('sentencePast2').textContent = `${subject} ${pastForm}n't`;
                 document.getElementById('sentencePast3').textContent = `${pastForm.charAt(0).toUpperCase() + pastForm.slice(1)} ${subject}?`;
-                document.getElementById('sentencePast4').textContent = `Where ${pastForm} ${subject}?`;
+                document.getElementById('sentencePast4').textContent = `${whWord} ${pastForm} ${subject}?`;
             } else {
                 document.getElementById('sentencePast1').textContent = `${subject} ${pastForm}`;
                 document.getElementById('sentencePast2').textContent = `${subject} didn't ${currentVerbPast}`;
                 document.getElementById('sentencePast3').textContent = `Did ${subject} ${currentVerbPast}?`;
-                document.getElementById('sentencePast4').textContent = `Where did ${subject} ${currentVerbPast}?`;
+                document.getElementById('sentencePast4').textContent = `${whWord} did ${subject} ${currentVerbPast}?`;
             }
             
             document.getElementById('schemeInfoPast').textContent = 'Past Simple: same form for all subjects';
