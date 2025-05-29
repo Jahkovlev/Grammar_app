@@ -1,1385 +1,255 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Grammar Drill</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+// api/conjugate.js - Vercel serverless function
+// Save this file in your project's api folder
+
+const Anthropic = require('@anthropic-ai/sdk');
+
+// Initialize Anthropic client
+const anthropic = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY, // Set this in Vercel environment variables
+});
+
+module.exports = async (req, res) => {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+        const { subject, verb, tense = 'present', mode = 'exercise' } = req.body;
+
+        if (!subject || !verb) {
+            return res.status(400).json({ error: 'Missing subject or verb' });
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-
-        h2 {
-            color: #555;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-
-        .welcome-text {
-            font-size: 20px;
-            color: #666;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 10px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            background: #cbd5e0;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .menu-button {
-            display: block;
-            width: 100%;
-            margin-bottom: 15px;
-            background: #48bb78;
-        }
-
-        .menu-button:hover {
-            background: #38a169;
-        }
-
-        .back-button {
-            background: #f56565;
-            padding: 10px 20px;
-            font-size: 16px;
-        }
-
-        .back-button:hover {
-            background: #e53e3e;
-        }
-
-        .navigation-buttons {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-            gap: 10px;
-        }
-
-        .button-row {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 350px;
-        }
+        // Create a specific prompt based on tense and mode
+        let prompt;
         
-        .navigation-buttons .back-button {
-            margin-top: 10px;
+        if (tense === 'past') {
+            prompt = `You are a grammar assistant. Your ONLY job is to conjugate English verbs correctly in PAST SIMPLE tense.
+
+Given:
+- Subject: "${subject}"
+- Verb: "${verb}"
+- Tense: Past Simple
+
+Generate EXACTLY 4 sentences following these patterns:
+1. [Subject] [past form of verb]
+2. [Subject] didn't [base verb] OR [Subject] wasn't/weren't (for 'be')
+3. Did [subject] [base verb]? OR Was/Were [subject]? (for 'be')
+4. [Appropriate wh-word] did [subject] [base verb]? OR [Wh-word] was/were [subject]? (for 'be')
+
+Rules:
+- Use the correct past form: be→was/were, beat→beat, become→became, begin→began, break→broke, bring→brought, build→built, buy→bought, catch→caught, choose→chose, come→came, cost→cost, do→did, draw→drew, dream→dreamt, drink→drank, drive→drove, eat→ate, fall→fell, feel→felt, find→found, fix→fixed, fly→flew, get→got, give→gave, go→went, grow→grew, have→had, hear→heard, know→knew, learn→learnt, leave→left, lie→lay, make→made, meet→met, play→played, put→put, read→read, run→ran, say→said, see→saw, seek→sought, show→showed, sing→sang, sit→sat, sleep→slept, speak→spoke, stand→stood, study→studied, swim→swam, take→took, teach→taught, tell→told, think→thought, throw→threw, understand→understood, work→worked, write→wrote
+- For 'be': use 'was' with I/he/she/it, use 'were' with you/we/they. Negative: wasn't/weren't. Questions: Was I? Were they?
+- For the 4th sentence, choose the most appropriate wh-word based on the verb:
+  * Where: go, come, drive, fly, run, walk, swim, sit, stand, put, throw, fall
+  * What: do, make, say, eat, drink, buy, read, write, draw, build, fix, choose, think, dream, break, catch, give, take, bring, see, hear, feel
+  * Who/Whom: meet, teach, beat, tell
+  * When: begin, leave, sleep
+  * How much: cost
+  * Why: cry, understand
+- ONLY output the 4 sentences, one per line
+- NO explanations, NO additional text
+
+Examples:
+Subject: "I", Verb: "go"
+I went
+I didn't go
+Did I go?
+Where did I go?
+
+Subject: "she", Verb: "eat"
+She ate
+She didn't eat
+Did she eat?
+What did she eat?
+
+Subject: "they", Verb: "meet"
+They met
+They didn't meet
+Did they meet?
+Who did they meet?
+
+Subject: "I", Verb: "be"
+I was
+I wasn't
+Was I?
+Where was I?
+
+Now generate for Subject: "${subject}", Verb: "${verb}"`;
+        } else if (tense === 'future') {
+            prompt = `You are a grammar assistant. Your ONLY job is to conjugate English verbs correctly in FUTURE SIMPLE tense.
+
+Given:
+- Subject: "${subject}"
+- Verb: "${verb}"
+- Tense: Future Simple
+
+Generate EXACTLY 4 sentences following these patterns:
+1. [Subject] will [base verb]
+2. [Subject] won't [base verb]
+3. Will [subject] [base verb]?
+4. [Appropriate wh-word] will [subject] [base verb]?
+
+Rules:
+- Future Simple uses "will" for ALL subjects
+- Negative uses "won't" (will not)
+- Questions start with "Will"
+- Always use base form of verb after will/won't
+- For the 4th sentence, choose the most appropriate wh-word based on the verb:
+  * Where: go, come, drive, fly, run, walk, swim, sit, stand, put, throw, fall, be
+  * What: do, make, say, eat, drink, buy, read, write, draw, build, fix, choose, think, dream, break, catch, give, take, bring, see, hear, feel
+  * Who/Whom: meet, teach, beat, tell
+  * When: begin, leave, sleep
+  * How much: cost
+  * Why: cry, understand
+- ONLY output the 4 sentences, one per line
+- NO explanations, NO additional text
+
+Examples:
+Subject: "I", Verb: "go"
+I will go
+I won't go
+Will I go?
+Where will I go?
+
+Subject: "she", Verb: "make"
+She will make
+She won't make
+Will she make?
+What will she make?
+
+Subject: "they", Verb: "meet"
+They will meet
+They won't meet
+Will they meet?
+Who will they meet?
+
+Subject: "it", Verb: "cost"
+It will cost
+It won't cost
+Will it cost?
+How much will it cost?
+
+Now generate for Subject: "${subject}", Verb: "${verb}"`;
+        } else {
+            // Present tense prompt (original)
+            prompt = `You are a grammar assistant. Your ONLY job is to conjugate English verbs correctly in PRESENT SIMPLE tense.
+
+Given:
+- Subject: "${subject}"
+- Verb: "${verb}"
+
+Generate EXACTLY 4 sentences following these patterns:
+1. [Subject] [conjugated verb]
+2. [Subject] [negative auxiliary] [base verb]
+3. [Auxiliary with capital first letter] [subject] [base verb]?
+4. [Appropriate wh-word] [auxiliary] [subject] [base verb]?
+
+Rules:
+- For I/you/we/they/plural nouns: use base form of verb, "don't", "do"
+- For he/she/it/singular nouns: add -s/-es to verb, use "doesn't", "does"
+- Special cases: be (am/is/are), have (has), do (does)
+- For 'be': I am, you/we/they are, he/she/it is. Questions: Am I? Is he? Are they? Negatives: I am not, he is not, they are not
+- For the 4th sentence, choose the most appropriate wh-word based on the verb:
+  * Where: go, come, drive, fly, run, walk, swim, sit, stand, put, throw, fall, be
+  * What: do, make, say, eat, drink, buy, read, write, draw, build, fix, choose, think, dream, break, catch, give, take, bring, see, hear, feel, have
+  * Who/Whom: meet, teach, beat, tell, know
+  * When: begin, leave, sleep, work, study, play
+  * How much: cost
+  * Why: cry, understand
+  * How: speak, feel
+- ONLY output the 4 sentences, one per line
+- NO explanations, NO additional text
+
+Examples:
+Subject: "I", Verb: "go"
+I go
+I don't go
+Do I go?
+Where do I go?
+
+Subject: "she", Verb: "eat"
+She eats
+She doesn't eat
+Does she eat?
+What does she eat?
+
+Subject: "I", Verb: "be"
+I am
+I am not
+Am I?
+Where am I?
+
+Subject: "they", Verb: "meet"
+They meet
+They don't meet
+Do they meet?
+Who do they meet?
+
+Subject: "he", Verb: "work"
+He works
+He doesn't work
+Does he work?
+When does he work?
+
+Now generate for Subject: "${subject}", Verb: "${verb}"`;
         }
 
-        .nav-button {
-            background: #4299e1;
-            padding: 10px 25px;
-            font-size: 16px;
-        }
+        const response = await anthropic.messages.create({
+            model: 'claude-3-haiku-20240307', // Use a cheaper, faster model for simple tasks
+            max_tokens: 150,
+            temperature: 0, // Deterministic output
+            messages: [{
+                role: 'user',
+                content: prompt
+            }]
+        });
 
-        .nav-button:hover {
-            background: #3182ce;
-        }
+        const sentences = response.content[0].text.trim().split('\n').filter(line => line.trim());
 
-        .exercise-container {
-            background: #f7fafc;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-        }
-
-        .sentence {
-            font-size: 20px;
-            color: #2d3748;
-            margin: 15px 0;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            border: 2px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-
-        .sentence:hover {
-            border-color: #667eea;
-            transform: translateX(5px);
-        }
-
-        .exercise-title {
-            font-size: 18px;
-            color: #718096;
-            margin-bottom: 20px;
-            font-style: italic;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .verb-info {
-            background: #bee3f8;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            color: #2c5282;
-        }
-
-        .scheme-info {
-            font-size: 14px;
-            color: #718096;
-            margin-bottom: 10px;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error-message {
-            color: #e53e3e;
-            font-size: 14px;
-            margin-top: 10px;
-            padding: 10px;
-            background: #fed7d7;
-            border-radius: 8px;
-        }
-
-        .api-setup {
-            background: #f7fafc;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .api-setup input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            margin: 10px 0;
-        }
-
-        .api-setup label {
-            display: block;
-            color: #4a5568;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .nav-button.next-button {
-            background: #48bb78;
-        }
-        
-        .nav-button.next-button:hover {
-            background: #38a169;
-        }
-        
-        .russian {
-            font-size: 28px;
-            color: #5a67d8;
-            font-weight: bold;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: #e6f2ff;
-            border-radius: 10px;
-            text-align: center;
-            display: block !important;
-        }
-        
-        .english {
-            font-size: 22px;
-            color: #2d3748;
-            margin: 10px 0;
-            padding: 15px;
-            background: #f7fafc;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            opacity: 0;
-            animation: fadeIn 0.5s forwards;
-        }
-        
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
-        }
-        
-        .test-item {
-            cursor: pointer;
-            user-select: none;
-            width: 100%;
-        }
-        
-        #testContainer {
-            min-height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        #testContainer:after {
-            content: 'Tap to reveal';
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 14px;
-            color: #a0aec0;
-            font-style: italic;
-        }
-        
-        #testContainer.complete:after {
-            content: 'Complete! Try a new example';
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px;
-            }
-            
-            button {
-                padding: 12px 25px;
-                font-size: 16px;
-            }
-            
-            .navigation-buttons {
-                justify-content: center;
-            }
-            
-            .nav-button {
-                margin: 5px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Welcome Screen -->
-        <div id="welcomeScreen" class="screen">
-            <h1>Welcome, learner!</h1>
-            <p class="welcome-text">Let's go and get you fluency NOW!</p>
-            <button onclick="showApiSetup()">GO!</button>
-        </div>
-
-        <!-- API Setup -->
-        <div id="apiSetup" class="screen hidden">
-            <h2>Setup Your Learning Assistant</h2>
-            <div class="api-setup">
-                <label for="apiEndpoint">API Endpoint URL:</label>
-                <input type="text" id="apiEndpoint" placeholder="https://your-backend.vercel.app/api/conjugate">
-                <p style="font-size: 14px; color: #718096; margin-top: 5px;">
-                    Enter your backend URL that handles Anthropic API requests
-                </p>
-            </div>
-            <button onclick="saveApiSettings()">Continue</button>
-            <button class="back-button" onclick="showWelcome()">Back</button>
-        </div>
-
-        <!-- Main Menu -->
-        <div id="mainMenu" class="screen hidden">
-            <h1>Main Menu</h1>
-            <button class="menu-button" onclick="showExercises()">Exercises</button>
-            <button class="menu-button" onclick="showTestYourself()">Test Yourself</button>
-        </div>
-
-        <!-- Exercises Menu -->
-        <div id="exercisesMenu" class="screen hidden">
-            <h2>Core Grammar</h2>
-            <button class="menu-button" onclick="startPresentSimple()">Present Simple</button>
-            <button class="menu-button" onclick="startPastSimple()">Past Simple</button>
-            <button class="menu-button" onclick="startFutureSimple()">Future Simple</button>
-            <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
-        </div>
-
-        <!-- Present Simple Exercise -->
-        <div id="presentSimple" class="screen hidden">
-            <h2>Present Simple</h2>
-            <p class="exercise-title">Practice changing subjects while keeping the same verb</p>
-            
-            <div class="verb-info" id="currentVerb">Current verb: go</div>
-            <div class="scheme-info" id="schemeInfo">Loading...</div>
-            
-            <div class="exercise-container">
-                <div id="sentenceDisplay">
-                    <div class="sentence" id="sentence1">Loading...</div>
-                    <div class="sentence" id="sentence2">Loading...</div>
-                    <div class="sentence" id="sentence3">Loading...</div>
-                    <div class="sentence" id="sentence4">Loading...</div>
-                </div>
-            </div>
-
-            <div id="errorMessage" class="error-message hidden"></div>
-
-            <div class="navigation-buttons">
-                <button class="nav-button" id="backBtn" onclick="previousSubject()" disabled>Back</button>
-                <button class="nav-button" id="changeWordBtn" onclick="changeVerb()">Change the Word</button>
-                <button class="nav-button" id="nextBtn" onclick="nextSubject()">Next</button>
-            </div>
-            
-            <button class="back-button" onclick="showExercises()">Back to Exercises</button>
-        </div>
-
-        <!-- Future Simple Exercise -->
-        <div id="futureSimple" class="screen hidden">
-            <h2>Future Simple</h2>
-            <p class="exercise-title">Practice changing subjects with future tense</p>
-            
-            <div class="verb-info" id="currentVerbFuture">Current verb: go</div>
-            <div class="scheme-info" id="schemeInfoFuture">Loading...</div>
-            
-            <div class="exercise-container">
-                <div id="sentenceDisplayFuture">
-                    <div class="sentence" id="sentenceFuture1">Loading...</div>
-                    <div class="sentence" id="sentenceFuture2">Loading...</div>
-                    <div class="sentence" id="sentenceFuture3">Loading...</div>
-                    <div class="sentence" id="sentenceFuture4">Loading...</div>
-                </div>
-            </div>
-
-            <div id="errorMessageFuture" class="error-message hidden"></div>
-
-            <div class="navigation-buttons">
-                <div class="button-row">
-                    <button class="nav-button" id="backBtnFuture" onclick="previousSubjectFuture()">Back</button>
-                    <button class="nav-button next-button" id="nextBtnFuture" onclick="nextSubjectFuture()">Next</button>
-                </div>
-                <div class="button-row">
-                    <button class="nav-button" onclick="playAudioFuture()">🔊 Play</button>
-                    <button class="nav-button" id="changeWordBtnFuture" onclick="changeVerbFuture()">Change the Word</button>
-                </div>
-                <button class="back-button" onclick="showExercises()">Back to Exercises</button>
-            </div>
-        </div>
-
-        <!-- Past Simple Exercise -->
-        <div id="pastSimple" class="screen hidden">
-            <h2>Past Simple</h2>
-            <p class="exercise-title">Practice changing subjects with past tense</p>
-            
-            <div class="verb-info" id="currentVerbPast">Current verb: go</div>
-            <div class="scheme-info" id="schemeInfoPast">Loading...</div>
-            
-            <div class="exercise-container">
-                <div id="sentenceDisplayPast">
-                    <div class="sentence" id="sentencePast1">Loading...</div>
-                    <div class="sentence" id="sentencePast2">Loading...</div>
-                    <div class="sentence" id="sentencePast3">Loading...</div>
-                    <div class="sentence" id="sentencePast4">Loading...</div>
-                </div>
-            </div>
-
-            <div id="errorMessagePast" class="error-message hidden"></div>
-
-            <div class="navigation-buttons">
-                <div class="button-row">
-                    <button class="nav-button" id="backBtnPast" onclick="previousSubjectPast()">Back</button>
-                    <button class="nav-button next-button" id="nextBtnPast" onclick="nextSubjectPast()">Next</button>
-                </div>
-                <div class="button-row">
-                    <button class="nav-button" onclick="playAudioPast()">🔊 Play</button>
-                    <button class="nav-button" id="changeWordBtnPast" onclick="changeVerbPast()">Change the Word</button>
-                </div>
-                <button class="back-button" onclick="showExercises()">Back to Exercises</button>
-            </div>
-        </div>
-
-        <!-- Test Yourself -->
-        <div id="testYourself" class="screen hidden">
-            <h2>Test Yourself</h2>
-            <p class="exercise-title">Translate this sentence and put it in the negative, question and wh-question form.<br>Tap the example to see the translation.</p>
-            
-            <div class="exercise-container" id="testContainer" onclick="revealNext()">
-                <div class="test-item">
-                    <div class="russian" id="russianSentence">Loading...</div>
-                    <div class="english hidden" id="englishPositive"></div>
-                    <div class="english hidden" id="englishNegative"></div>
-                    <div class="english hidden" id="englishQuestion"></div>
-                    <div class="english hidden" id="englishWhQuestion"></div>
-                </div>
-            </div>
-            
-            <div id="testError" class="error-message hidden"></div>
-            
-            <div class="navigation-buttons">
-                <button class="nav-button" onclick="generateNewTest()">New Example</button>
-                <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Data
-        const verbs = [
-            // Original verbs
-            'go', 'fix', 'get', 'work', 'play', 'study', 'eat', 'take', 'make', 'read', 'write', 'speak',
-            // New irregular verbs from the table
-            'be', 'beat', 'become', 'begin', 'break', 'bring', 'build', 'buy', 'catch', 'choose',
-            'come', 'cost', 'do', 'draw', 'dream', 'drink', 'drive', 'fall', 'feel', 'find',
-            'fly', 'give', 'grow', 'have', 'hear', 'know', 'learn', 'leave', 'lie', 'meet',
-            'put', 'run', 'say', 'see', 'seek', 'show', 'sing', 'sit', 'sleep', 'stand',
-            'swim', 'teach', 'tell', 'think', 'throw', 'understand'
-        ];
-        const allSubjects = ['I', 'you', 'he', 'she', 'it', 'we', 'they'];
-
-        // State
-        let currentVerb = 'go';
-        let currentSubjectIndex = 0;
-        let apiEndpoint = '';
-        let isLoading = false;
-        
-        // State for Past Simple
-        let currentVerbPast = 'go';
-        let currentSubjectIndexPast = 0;
-        
-        // State for Future Simple
-        let currentVerbFuture = 'go';
-        let currentSubjectIndexFuture = 0;
-        
-        // Audio settings
-        let audioEnabled = true;
-        
-        // Test Yourself state
-        let currentTestData = null;
-        let revealStage = 0;
-
-        // Navigation functions
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.add('hidden');
+        // Determine response format based on mode
+        if (mode === 'test') {
+            // Test mode returns Russian + 4 English sentences
+            return res.status(200).json({
+                russian: sentences[0],
+                sentences: sentences.slice(1),
+                tense: tense
             });
-            document.getElementById(screenId).classList.remove('hidden');
-        }
-
-        function showWelcome() {
-            showScreen('welcomeScreen');
-        }
-
-        function showApiSetup() {
-            // Check if API endpoint is already saved
-            const savedEndpoint = localStorage.getItem('apiEndpoint');
-            if (savedEndpoint) {
-                apiEndpoint = savedEndpoint;
-                showMainMenu();
+        } else {
+            // Exercise mode returns 4 English sentences + scheme info
+            let schemeInfo;
+            if (tense === 'past') {
+                schemeInfo = 'Past Simple: same form for all subjects';
+            } else if (tense === 'future') {
+                schemeInfo = 'Future Simple: will + base verb for all subjects';
             } else {
-                showScreen('apiSetup');
-            }
-        }
-
-        function saveApiSettings() {
-            const endpoint = document.getElementById('apiEndpoint').value.trim();
-            if (!endpoint) {
-                alert('Please enter your API endpoint URL');
-                return;
-            }
-            apiEndpoint = endpoint;
-            localStorage.setItem('apiEndpoint', endpoint);
-            showMainMenu();
-        }
-
-        function showMainMenu() {
-            showScreen('mainMenu');
-        }
-
-        function showExercises() {
-            showScreen('exercisesMenu');
-        }
-
-        function showTestYourself() {
-            showScreen('testYourself');
-            generateNewTest();
-        }
-
-        function startPresentSimple() {
-            showScreen('presentSimple');
-            currentSubjectIndex = 0;
-            updateExerciseDisplay();
-        }
-
-        function startPastSimple() {
-            showScreen('pastSimple');
-            currentSubjectIndexPast = 0;
-            updatePastSimpleDisplay();
-        }
-
-        // Future Simple Exercise Functions
-        async function updateFutureSimpleDisplay() {
-            if (isLoading) return;
-            
-            const subject = allSubjects[currentSubjectIndexFuture];
-            
-            // Show loading state
-            setLoadingStateFuture(true);
-            
-            try {
-                const response = await fetch(apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        subject: subject,
-                        verb: currentVerbFuture,
-                        tense: 'future'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('API request failed');
-                }
-
-                const data = await response.json();
-                
-                // Update sentences with API response
-                document.getElementById('sentenceFuture1').textContent = data.sentences[0];
-                document.getElementById('sentenceFuture2').textContent = data.sentences[1];
-                document.getElementById('sentenceFuture3').textContent = data.sentences[2];
-                document.getElementById('sentenceFuture4').textContent = data.sentences[3];
-                
-                // Update scheme info
-                document.getElementById('schemeInfoFuture').textContent = 'Future Simple: will + base verb for all subjects';
-                
-                // Hide error message
-                document.getElementById('errorMessageFuture').classList.add('hidden');
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showErrorFuture('Failed to generate sentences. Using fallback logic.');
-                useFallbackLogicFuture(subject);
-            } finally {
-                setLoadingStateFuture(false);
+                const isScheme2 = sentences[0].includes(verb + 's') || sentences[0].includes(verb + 'es');
+                schemeInfo = isScheme2 
+                    ? 'Scheme 2: he/she/it forms (third person singular)' 
+                    : 'Scheme 1: I/you/we/they forms';
             }
             
-            // Update navigation buttons (never disable them since we loop)
-            // Update verb info
-            document.getElementById('currentVerbFuture').textContent = `Current verb: ${currentVerbFuture}`;
-        }
-
-        function setLoadingStateFuture(loading) {
-            isLoading = loading;
-            const buttons = ['backBtnFuture', 'nextBtnFuture', 'changeWordBtnFuture'];
-            buttons.forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                if (btn) btn.disabled = loading;
+            return res.status(200).json({
+                sentences: sentences,
+                schemeInfo: schemeInfo
             });
-            
-            if (loading) {
-                document.querySelectorAll('#sentenceDisplayFuture .sentence').forEach(el => {
-                    el.innerHTML = 'Generating... <span class="loading"></span>';
-                });
-            }
         }
 
-        function showErrorFuture(message) {
-            const errorEl = document.getElementById('errorMessageFuture');
-            errorEl.textContent = message;
-            errorEl.classList.remove('hidden');
-        }
-
-        function useFallbackLogicFuture(subject) {
-            // Simple fallback for future tense
-            let whWord = getWhWord(currentVerbFuture);
-            
-            document.getElementById('sentenceFuture1').textContent = `${subject} will ${currentVerbFuture}`;
-            document.getElementById('sentenceFuture2').textContent = `${subject} won't ${currentVerbFuture}`;
-            document.getElementById('sentenceFuture3').textContent = `Will ${subject} ${currentVerbFuture}?`;
-            document.getElementById('sentenceFuture4').textContent = `${whWord} will ${subject} ${currentVerbFuture}?`;
-            
-            document.getElementById('schemeInfoFuture').textContent = 'Future Simple: will + base verb for all subjects';
-        }
-
-        function nextSubjectFuture() {
-            if (!isLoading) {
-                currentSubjectIndexFuture++;
-                if (currentSubjectIndexFuture >= allSubjects.length) {
-                    currentSubjectIndexFuture = 0; // Loop back to beginning
-                }
-                updateFutureSimpleDisplay();
-            }
-        }
-
-        function previousSubjectFuture() {
-            if (!isLoading) {
-                currentSubjectIndexFuture--;
-                if (currentSubjectIndexFuture < 0) {
-                    currentSubjectIndexFuture = allSubjects.length - 1; // Loop to end
-                }
-                updateFutureSimpleDisplay();
-            }
-        }
-
-        function changeVerbFuture() {
-            if (isLoading) return;
-            
-            // Get a random verb different from the current one
-            let newVerb;
-            do {
-                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            } while (newVerb === currentVerbFuture);
-            
-            currentVerbFuture = newVerb;
-            
-            // Get a random subject
-            currentSubjectIndexFuture = Math.floor(Math.random() * allSubjects.length);
-            
-            updateFutureSimpleDisplay();
-        }
-
-        // Audio Functions
-        function speak(text) {
-            if ('speechSynthesis' in window && audioEnabled) {
-                // Cancel any ongoing speech
-                window.speechSynthesis.cancel();
-                
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9; // Slightly slower for learning
-                utterance.pitch = 1;
-                utterance.volume = 1;
-                
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function playAudioPresent() {
-            const sentences = [
-                document.getElementById('sentence1').textContent,
-                document.getElementById('sentence2').textContent,
-                document.getElementById('sentence3').textContent,
-                document.getElementById('sentence4').textContent
-            ];
-            
-            // Speak all sentences with pauses
-            let index = 0;
-            function speakNext() {
-                if (index < sentences.length) {
-                    speak(sentences[index]);
-                    index++;
-                    setTimeout(speakNext, 2000); // 2 second pause between sentences
-                }
-            }
-            speakNext();
-        }
-
-        // Test Yourself Functions
-        async function generateNewTest() {
-            // Reset reveal stage
-            revealStage = 0;
-            
-            // Reset complete state
-            document.getElementById('testContainer').classList.remove('complete');
-            
-            // Ensure Russian is visible and all English sentences are hidden
-            document.getElementById('russianSentence').style.display = 'block';
-            document.getElementById('russianSentence').classList.remove('hidden');
-            document.querySelectorAll('.english').forEach(el => {
-                el.classList.add('hidden');
-                el.style.display = 'none';
-            });
-            
-            // Show loading
-            document.getElementById('russianSentence').textContent = 'Generating new example...';
-            
-            try {
-                // Get random subject, verb, and tense
-                const randomSubject = allSubjects[Math.floor(Math.random() * allSubjects.length)];
-                const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
-                const tenses = ['present', 'past', 'future'];
-                const randomTense = tenses[Math.floor(Math.random() * tenses.length)];
-                
-                // Call API to generate test
-                const response = await fetch(apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        subject: randomSubject,
-                        verb: randomVerb,
-                        tense: randomTense,
-                        mode: 'test'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('API request failed');
-                }
-
-                const data = await response.json();
-                currentTestData = data;
-                
-                // Display Russian translation (ensure it's visible)
-                const russianEl = document.getElementById('russianSentence');
-                russianEl.textContent = data.russian;
-                russianEl.classList.remove('hidden');
-                russianEl.style.display = 'block';
-                
-                // Store English sentences (ensure they're hidden)
-                const englishIds = ['englishPositive', 'englishNegative', 'englishQuestion', 'englishWhQuestion'];
-                englishIds.forEach((id, index) => {
-                    const el = document.getElementById(id);
-                    el.textContent = data.sentences[index];
-                    el.classList.add('hidden');
-                    el.style.display = 'none';
-                });
-                
-                // Hide error message
-                document.getElementById('testError').classList.add('hidden');
-                
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('testError').textContent = 'Failed to generate test. Using fallback.';
-                document.getElementById('testError').classList.remove('hidden');
-                generateFallbackTest();
-            }
-        }
-        
-        function generateFallbackTest() {
-            // Fallback test generation
-            const randomSubject = allSubjects[Math.floor(Math.random() * allSubjects.length)];
-            const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            const tenses = ['present', 'past', 'future'];
-            const randomTense = tenses[Math.floor(Math.random() * tenses.length)];
-            
-            // Natural Russian translations
-            const russianTranslations = {
-                present: {
-                    'I go': 'Я иду', 'you go': 'Ты идёшь', 'he goes': 'Он идёт',
-                    'she goes': 'Она идёт', 'it goes': 'Оно идёт', 'we go': 'Мы идём', 'they go': 'Они идут',
-                    'I eat': 'Я ем', 'you eat': 'Ты ешь', 'he eats': 'Он ест',
-                    'she eats': 'Она ест', 'we eat': 'Мы едим', 'they eat': 'Они едят',
-                    'I work': 'Я работаю', 'he works': 'Он работает', 'they work': 'Они работают',
-                    'I read': 'Я читаю', 'she reads': 'Она читает', 'we read': 'Мы читаем'
-                },
-                past: {
-                    'I went': 'Я ходил(а)', 'you went': 'Ты ходил(а)', 'he went': 'Он ходил',
-                    'she went': 'Она ходила', 'we went': 'Мы ходили', 'they went': 'Они ходили',
-                    'I ate': 'Я ел(а)', 'he ate': 'Он ел', 'she ate': 'Она ела',
-                    'I worked': 'Я работал(а)', 'they worked': 'Они работали'
-                },
-                future: {
-                    'I will go': 'Я пойду', 'you will go': 'Ты пойдёшь', 'he will go': 'Он пойдёт',
-                    'she will go': 'Она пойдёт', 'we will go': 'Мы пойдём', 'they will go': 'Они пойдут',
-                    'I will eat': 'Я буду есть', 'he will eat': 'Он будет есть',
-                    'I will work': 'Я буду работать', 'she will work': 'Она будет работать'
-                }
-            };
-            
-            // Generate sentences based on tense
-            let sentences = [];
-            let russianSentence = '';
-            let whWord = getWhWord(randomVerb);
-            
-            if (randomTense === 'present') {
-                const verbForm = getVerbFormForSubject(randomSubject, randomVerb);
-                const positive = `${randomSubject} ${verbForm}`;
-                sentences = [
-                    positive,
-                    `${randomSubject} ${randomSubject === 'he' || randomSubject === 'she' || randomSubject === 'it' ? "doesn't" : "don't"} ${randomVerb}`,
-                    `${randomSubject === 'he' || randomSubject === 'she' || randomSubject === 'it' ? "Does" : "Do"} ${randomSubject} ${randomVerb}?`,
-                    `${whWord} ${randomSubject === 'he' || randomSubject === 'she' || randomSubject === 'it' ? "does" : "do"} ${randomSubject} ${randomVerb}?`
-                ];
-                russianSentence = russianTranslations.present[positive] || `${randomSubject} ${randomVerb} (настоящее)`;
-            } else if (randomTense === 'past') {
-                const pastForm = getPastForm(randomVerb);
-                const positive = `${randomSubject} ${pastForm}`;
-                sentences = [
-                    positive,
-                    `${randomSubject} didn't ${randomVerb}`,
-                    `Did ${randomSubject} ${randomVerb}?`,
-                    `${whWord} did ${randomSubject} ${randomVerb}?`
-                ];
-                russianSentence = russianTranslations.past[positive] || `${randomSubject} ${randomVerb} (прошедшее)`;
-            } else {
-                const positive = `${randomSubject} will ${randomVerb}`;
-                sentences = [
-                    positive,
-                    `${randomSubject} won't ${randomVerb}`,
-                    `Will ${randomSubject} ${randomVerb}?`,
-                    `${whWord} will ${randomSubject} ${randomVerb}?`
-                ];
-                russianSentence = russianTranslations.future[positive] || `${randomSubject} ${randomVerb} (будущее)`;
-            }
-            
-            // Handle 'be' verb specially
-            if (randomVerb === 'be') {
-                if (randomTense === 'present') {
-                    let beForm = randomSubject === 'I' ? 'am' : 
-                               (randomSubject === 'he' || randomSubject === 'she' || randomSubject === 'it') ? 'is' : 'are';
-                    sentences[0] = `${randomSubject} ${beForm}`;
-                    sentences[1] = `${randomSubject} ${beForm} not`;
-                    sentences[2] = `${beForm.charAt(0).toUpperCase() + beForm.slice(1)} ${randomSubject}?`;
-                    sentences[3] = `Where ${beForm} ${randomSubject}?`;
-                    russianSentence = `${randomSubject === 'I' ? 'Я' : randomSubject === 'he' ? 'Он' : 
-                                      randomSubject === 'she' ? 'Она' : randomSubject === 'you' ? 'Ты' :
-                                      randomSubject === 'we' ? 'Мы' : randomSubject === 'they' ? 'Они' : 'Это'} 
-                                      ${beForm === 'am' || beForm === 'is' ? 'есть' : 'есть'}`;
-                } else if (randomTense === 'past') {
-                    let wasWere = ['I', 'he', 'she', 'it'].includes(randomSubject) ? 'was' : 'were';
-                    sentences[0] = `${randomSubject} ${wasWere}`;
-                    sentences[1] = `${randomSubject} ${wasWere}n't`;
-                    sentences[2] = `${wasWere.charAt(0).toUpperCase() + wasWere.slice(1)} ${randomSubject}?`;
-                    sentences[3] = `Where ${wasWere} ${randomSubject}?`;
-                    russianSentence = `${randomSubject === 'I' ? 'Я был(а)' : randomSubject === 'he' ? 'Он был' :
-                                      randomSubject === 'she' ? 'Она была' : randomSubject === 'you' ? 'Ты был(а)' :
-                                      randomSubject === 'we' ? 'Мы были' : randomSubject === 'they' ? 'Они были' : 'Это было'}`;
-                }
-            }
-            
-            // Display (ensure Russian visible, English hidden)
-            const russianEl = document.getElementById('russianSentence');
-            russianEl.textContent = russianSentence;
-            russianEl.classList.remove('hidden');
-            russianEl.style.display = 'block';
-            
-            const englishData = [
-                {id: 'englishPositive', text: sentences[0]},
-                {id: 'englishNegative', text: sentences[1]},
-                {id: 'englishQuestion', text: sentences[2]},
-                {id: 'englishWhQuestion', text: sentences[3]}
-            ];
-            
-            englishData.forEach(item => {
-                const el = document.getElementById(item.id);
-                el.textContent = item.text;
-                el.classList.add('hidden');
-                el.style.display = 'none';
-            });
-            
-            currentTestData = { sentences: sentences };
-        }
-        
-        function getVerbFormForSubject(subject, verb) {
-            const isThirdPerson = ['he', 'she', 'it'].includes(subject.toLowerCase());
-            
-            if (verb === 'be') {
-                if (subject === 'I') return 'am';
-                if (isThirdPerson) return 'is';
-                return 'are';
-            }
-            
-            if (!isThirdPerson) return verb;
-            
-            if (verb === 'have') return 'has';
-            if (verb === 'do') return 'does';
-            
-            if (verb.endsWith('y') && !['a','e','i','o','u'].includes(verb[verb.length-2])) {
-                return verb.slice(0, -1) + 'ies';
-            } else if (verb.endsWith('o') || verb.endsWith('s') || verb.endsWith('x') || verb.endsWith('ch') || verb.endsWith('sh')) {
-                return verb + 'es';
-            }
-            return verb + 's';
-        }
-        
-        function getPastForm(verb) {
-            const irregulars = {
-                'go': 'went', 'get': 'got', 'eat': 'ate', 'take': 'took', 'make': 'made',
-                'write': 'wrote', 'speak': 'spoke', 'read': 'read', 'be': 'was/were',
-                'beat': 'beat', 'become': 'became', 'begin': 'began',
-                'break': 'broke', 'bring': 'brought', 'build': 'built',
-                'buy': 'bought', 'catch': 'caught', 'choose': 'chose',
-                'come': 'came', 'cost': 'cost', 'do': 'did',
-                'draw': 'drew', 'dream': 'dreamt', 'drink': 'drank',
-                'drive': 'drove', 'fall': 'fell', 'feel': 'felt',
-                'find': 'found', 'fly': 'flew', 'give': 'gave',
-                'grow': 'grew', 'have': 'had', 'hear': 'heard',
-                'know': 'knew', 'learn': 'learnt', 'leave': 'left',
-                'lie': 'lay', 'meet': 'met', 'put': 'put',
-                'run': 'ran', 'say': 'said', 'see': 'saw',
-                'seek': 'sought', 'show': 'showed', 'sing': 'sang',
-                'sit': 'sat', 'sleep': 'slept', 'stand': 'stood',
-                'swim': 'swam', 'teach': 'taught', 'tell': 'told',
-                'think': 'thought', 'throw': 'threw', 'understand': 'understood'
-            };
-            return irregulars[verb] || verb + 'ed';
-        }
-        
-        function revealNext() {
-            const elements = [
-                'englishPositive',
-                'englishNegative', 
-                'englishQuestion',
-                'englishWhQuestion'
-            ];
-            
-            if (revealStage < elements.length) {
-                const element = document.getElementById(elements[revealStage]);
-                element.classList.remove('hidden');
-                element.style.display = 'block';
-                revealStage++;
-                
-                // Mark as complete when all revealed
-                if (revealStage === elements.length) {
-                    document.getElementById('testContainer').classList.add('complete');
-                }
-            }
-        }
-
-        function playAudioPast() {
-            const sentences = [
-                document.getElementById('sentencePast1').textContent,
-                document.getElementById('sentencePast2').textContent,
-                document.getElementById('sentencePast3').textContent,
-                document.getElementById('sentencePast4').textContent
-            ];
-            
-            let index = 0;
-            function speakNext() {
-                if (index < sentences.length) {
-                    speak(sentences[index]);
-                    index++;
-                    setTimeout(speakNext, 2000);
-                }
-            }
-            speakNext();
-        }
-
-        function playAudioFuture() {
-            const sentences = [
-                document.getElementById('sentenceFuture1').textContent,
-                document.getElementById('sentenceFuture2').textContent,
-                document.getElementById('sentenceFuture3').textContent,
-                document.getElementById('sentenceFuture4').textContent
-            ];
-            
-            let index = 0;
-            function speakNext() {
-                if (index < sentences.length) {
-                    speak(sentences[index]);
-                    index++;
-                    setTimeout(speakNext, 2000);
-                }
-            }
-            speakNext();
-        }
-        
-        function startFutureSimple() {
-            showScreen('futureSimple');
-            currentSubjectIndexFuture = 0;
-            updateFutureSimpleDisplay();
-        }
-
-        // Exercise functions
-        async function updateExerciseDisplay() {
-            if (isLoading) return;
-            
-            const subject = allSubjects[currentSubjectIndex];
-            
-            // Show loading state
-            setLoadingState(true);
-            
-            try {
-                // Call your backend API which will use Anthropic
-                const response = await fetch(apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        subject: subject,
-                        verb: currentVerb,
-                        tense: 'present'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('API request failed');
-                }
-
-                const data = await response.json();
-                
-                // Update sentences with API response
-                document.getElementById('sentence1').textContent = data.sentences[0];
-                document.getElementById('sentence2').textContent = data.sentences[1];
-                document.getElementById('sentence3').textContent = data.sentences[2];
-                document.getElementById('sentence4').textContent = data.sentences[3];
-                
-                // Update scheme info
-                document.getElementById('schemeInfo').textContent = data.schemeInfo;
-                
-                // Hide error message
-                document.getElementById('errorMessage').classList.add('hidden');
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showError('Failed to generate sentences. Using fallback logic.');
-                useFallbackLogic(subject);
-            } finally {
-                setLoadingState(false);
-            }
-            
-            // Update navigation buttons (never disable them since we loop)
-            // Update verb info
-            document.getElementById('currentVerb').textContent = `Current verb: ${currentVerb}`;
-        }
-
-        function setLoadingState(loading) {
-            isLoading = loading;
-            const buttons = ['backBtn', 'nextBtn', 'changeWordBtn'];
-            buttons.forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                if (btn) btn.disabled = loading;
-            });
-            
-            if (loading) {
-                document.querySelectorAll('.sentence').forEach(el => {
-                    el.innerHTML = 'Generating... <span class="loading"></span>';
-                });
-            }
-        }
-
-        function showError(message) {
-            const errorEl = document.getElementById('errorMessage');
-            errorEl.textContent = message;
-            errorEl.classList.remove('hidden');
-        }
-
-        function useFallbackLogic(subject) {
-            // Simple fallback logic when API fails
-            const isThirdPersonSingular = ['he', 'she', 'it'].includes(subject.toLowerCase());
-            
-            let verbForm = currentVerb;
-            let aux = 'do';
-            let auxNeg = "don't";
-            let whWord = getWhWord(currentVerb);
-            
-            // Special cases for irregular present forms
-            if (currentVerb === 'be') {
-                if (subject.toLowerCase() === 'i') {
-                    verbForm = 'am';
-                } else if (isThirdPersonSingular) {
-                    verbForm = 'is';
-                } else {
-                    verbForm = 'are';
-                }
-            } else if (currentVerb === 'have' && isThirdPersonSingular) {
-                verbForm = 'has';
-            } else if (currentVerb === 'do' && isThirdPersonSingular) {
-                verbForm = 'does';
-            } else if (isThirdPersonSingular) {
-                aux = 'does';
-                auxNeg = "doesn't";
-                // Handle third person singular forms
-                if (currentVerb.endsWith('y') && !['a','e','i','o','u'].includes(currentVerb[currentVerb.length-2])) {
-                    verbForm = currentVerb.slice(0, -1) + 'ies'; // study → studies
-                } else if (currentVerb.endsWith('o') || currentVerb.endsWith('s') || currentVerb.endsWith('x') || currentVerb.endsWith('ch') || currentVerb.endsWith('sh')) {
-                    verbForm = currentVerb + 'es'; // go → goes, fix → fixes
-                } else {
-                    verbForm = currentVerb + 's'; // eat → eats
-                }
-            }
-            
-            // For 'be', we don't use do/does in questions
-            if (currentVerb === 'be') {
-                document.getElementById('sentence1').textContent = `${subject} ${verbForm}`;
-                document.getElementById('sentence2').textContent = `${subject} ${verbForm} not`;
-                document.getElementById('sentence3').textContent = `${verbForm.charAt(0).toUpperCase() + verbForm.slice(1)} ${subject}?`;
-                document.getElementById('sentence4').textContent = `${whWord} ${verbForm} ${subject}?`;
-            } else {
-                document.getElementById('sentence1').textContent = `${subject} ${verbForm}`;
-                document.getElementById('sentence2').textContent = `${subject} ${auxNeg} ${currentVerb}`;
-                document.getElementById('sentence3').textContent = `${aux.charAt(0).toUpperCase() + aux.slice(1)} ${subject} ${currentVerb}?`;
-                document.getElementById('sentence4').textContent = `${whWord} ${aux} ${subject} ${currentVerb}?`;
-            }
-            
-            document.getElementById('schemeInfo').textContent = isThirdPersonSingular ? 
-                'Scheme 2: he/she/it forms (third person singular)' : 
-                'Scheme 1: I/you/we/they forms';
-        }
-        
-        function getWhWord(verb) {
-            const whWords = {
-                // Movement verbs
-                'go': 'Where', 'come': 'Where', 'drive': 'Where', 'fly': 'Where', 
-                'run': 'Where', 'walk': 'Where', 'swim': 'Where', 'sit': 'Where',
-                'stand': 'Where', 'put': 'Where', 'throw': 'Where', 'fall': 'Where', 'be': 'Where',
-                
-                // Action/creation verbs
-                'do': 'What', 'make': 'What', 'say': 'What', 'eat': 'What',
-                'drink': 'What', 'buy': 'What', 'read': 'What', 'write': 'What',
-                'draw': 'What', 'build': 'What', 'fix': 'What', 'choose': 'What',
-                'think': 'What', 'dream': 'What', 'break': 'What', 'catch': 'What',
-                'give': 'What', 'take': 'What', 'bring': 'What', 'see': 'What',
-                'hear': 'What', 'feel': 'What', 'have': 'What', 'get': 'What',
-                'find': 'What', 'seek': 'What', 'show': 'What', 'sing': 'What',
-                
-                // People-related verbs
-                'meet': 'Who', 'teach': 'Who', 'beat': 'Who', 'tell': 'Who', 'know': 'Who',
-                
-                // Time-related verbs
-                'begin': 'When', 'leave': 'When', 'sleep': 'When', 'work': 'When',
-                'study': 'When', 'play': 'When',
-                
-                // Cost
-                'cost': 'How much',
-                
-                // Reason
-                'cry': 'Why', 'understand': 'Why',
-                
-                // Manner
-                'speak': 'How', 'grow': 'How', 'learn': 'How', 'lie': 'How'
-            };
-            
-            return whWords[verb] || 'What';
-        }
-
-        function nextSubject() {
-            if (!isLoading) {
-                currentSubjectIndex++;
-                if (currentSubjectIndex >= allSubjects.length) {
-                    currentSubjectIndex = 0; // Loop back to beginning
-                }
-                updateExerciseDisplay();
-            }
-        }
-
-        function previousSubject() {
-            if (!isLoading) {
-                currentSubjectIndex--;
-                if (currentSubjectIndex < 0) {
-                    currentSubjectIndex = allSubjects.length - 1; // Loop to end
-                }
-                updateExerciseDisplay();
-            }
-        }
-
-        function changeVerb() {
-            if (isLoading) return;
-            
-            // Get a random verb different from the current one
-            let newVerb;
-            do {
-                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            } while (newVerb === currentVerb);
-            
-            currentVerb = newVerb;
-            
-            // Get a random subject
-            currentSubjectIndex = Math.floor(Math.random() * allSubjects.length);
-            
-            updateExerciseDisplay();
-        }
-
-        // Past Simple Exercise Functions
-        async function updatePastSimpleDisplay() {
-            if (isLoading) return;
-            
-            const subject = allSubjects[currentSubjectIndexPast];
-            
-            // Show loading state
-            setLoadingStatePast(true);
-            
-            try {
-                const response = await fetch(apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        subject: subject,
-                        verb: currentVerbPast,
-                        tense: 'past'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('API request failed');
-                }
-
-                const data = await response.json();
-                
-                // Update sentences with API response
-                document.getElementById('sentencePast1').textContent = data.sentences[0];
-                document.getElementById('sentencePast2').textContent = data.sentences[1];
-                document.getElementById('sentencePast3').textContent = data.sentences[2];
-                document.getElementById('sentencePast4').textContent = data.sentences[3];
-                
-                // Update scheme info
-                document.getElementById('schemeInfoPast').textContent = 'Past Simple: same form for all subjects';
-                
-                // Hide error message
-                document.getElementById('errorMessagePast').classList.add('hidden');
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showErrorPast('Failed to generate sentences. Using fallback logic.');
-                useFallbackLogicPast(subject);
-            } finally {
-                setLoadingStatePast(false);
-            }
-            
-            // Update navigation buttons (never disable them since we loop)
-            // Update verb info
-            document.getElementById('currentVerbPast').textContent = `Current verb: ${currentVerbPast}`;
-        }
-
-        function setLoadingStatePast(loading) {
-            isLoading = loading;
-            const buttons = ['backBtnPast', 'nextBtnPast', 'changeWordBtnPast'];
-            buttons.forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                if (btn) btn.disabled = loading;
-            });
-            
-            if (loading) {
-                document.querySelectorAll('#sentenceDisplayPast .sentence').forEach(el => {
-                    el.innerHTML = 'Generating... <span class="loading"></span>';
-                });
-            }
-        }
-
-        function showErrorPast(message) {
-            const errorEl = document.getElementById('errorMessagePast');
-            errorEl.textContent = message;
-            errorEl.classList.remove('hidden');
-        }
-
-        function useFallbackLogicPast(subject) {
-            // Simple fallback for past tense
-            const irregularPast = {
-                'go': 'went', 'get': 'got', 'eat': 'ate', 
-                'take': 'took', 'make': 'made', 'write': 'wrote',
-                'speak': 'spoke', 'read': 'read', 'be': 'was/were',
-                'beat': 'beat', 'become': 'became', 'begin': 'began',
-                'break': 'broke', 'bring': 'brought', 'build': 'built',
-                'buy': 'bought', 'catch': 'caught', 'choose': 'chose',
-                'come': 'came', 'cost': 'cost', 'do': 'did',
-                'draw': 'drew', 'dream': 'dreamt', 'drink': 'drank',
-                'drive': 'drove', 'fall': 'fell', 'feel': 'felt',
-                'find': 'found', 'fly': 'flew', 'give': 'gave',
-                'grow': 'grew', 'have': 'had', 'hear': 'heard',
-                'know': 'knew', 'learn': 'learnt', 'leave': 'left',
-                'lie': 'lay', 'meet': 'met', 'put': 'put',
-                'run': 'ran', 'say': 'said', 'see': 'saw',
-                'seek': 'sought', 'show': 'showed', 'sing': 'sang',
-                'sit': 'sat', 'sleep': 'slept', 'stand': 'stood',
-                'swim': 'swam', 'teach': 'taught', 'tell': 'told',
-                'think': 'thought', 'throw': 'threw', 'understand': 'understood'
-            };
-            
-            let pastForm = irregularPast[currentVerbPast] || currentVerbPast + 'ed';
-            let whWord = getWhWord(currentVerbPast);
-            
-            // Special handling for 'be'
-            if (currentVerbPast === 'be') {
-                if (['I', 'he', 'she', 'it'].includes(subject)) {
-                    pastForm = 'was';
-                } else {
-                    pastForm = 'were';
-                }
-                
-                document.getElementById('sentencePast1').textContent = `${subject} ${pastForm}`;
-                document.getElementById('sentencePast2').textContent = `${subject} ${pastForm}n't`;
-                document.getElementById('sentencePast3').textContent = `${pastForm.charAt(0).toUpperCase() + pastForm.slice(1)} ${subject}?`;
-                document.getElementById('sentencePast4').textContent = `${whWord} ${pastForm} ${subject}?`;
-            } else {
-                document.getElementById('sentencePast1').textContent = `${subject} ${pastForm}`;
-                document.getElementById('sentencePast2').textContent = `${subject} didn't ${currentVerbPast}`;
-                document.getElementById('sentencePast3').textContent = `Did ${subject} ${currentVerbPast}?`;
-                document.getElementById('sentencePast4').textContent = `${whWord} did ${subject} ${currentVerbPast}?`;
-            }
-            
-            document.getElementById('schemeInfoPast').textContent = 'Past Simple: same form for all subjects';
-        }
-
-        function nextSubjectPast() {
-            if (!isLoading) {
-                currentSubjectIndexPast++;
-                if (currentSubjectIndexPast >= allSubjects.length) {
-                    currentSubjectIndexPast = 0; // Loop back to beginning
-                }
-                updatePastSimpleDisplay();
-            }
-        }
-
-        function previousSubjectPast() {
-            if (!isLoading) {
-                currentSubjectIndexPast--;
-                if (currentSubjectIndexPast < 0) {
-                    currentSubjectIndexPast = allSubjects.length - 1; // Loop to end
-                }
-                updatePastSimpleDisplay();
-            }
-        }
-
-        function changeVerbPast() {
-            if (isLoading) return;
-            
-            // Get a random verb different from the current one
-            let newVerb;
-            do {
-                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            } while (newVerb === currentVerbPast);
-            
-            currentVerbPast = newVerb;
-            
-            // Get a random subject
-            currentSubjectIndexPast = Math.floor(Math.random() * allSubjects.length);
-            
-            updatePastSimpleDisplay();
-        }
-    </script>
-</body>
-</html>
+    } catch (error) {
+        console.error('Error calling Anthropic API:', error);
+        return res.status(500).json({ 
+            error: 'Failed to generate conjugation',
+            details: error.message 
+        });
+    }
+};
