@@ -24,13 +24,13 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const { subject, verb, tense = 'present' } = req.body;
+        const { subject, verb, tense = 'present', mode = 'exercise' } = req.body;
 
         if (!subject || !verb) {
             return res.status(400).json({ error: 'Missing subject or verb' });
         }
 
-        // Create a specific prompt based on tense
+        // Create a specific prompt based on tense and mode
         let prompt;
         
         if (tense === 'past') {
@@ -217,23 +217,33 @@ Now generate for Subject: "${subject}", Verb: "${verb}"`;
 
         const sentences = response.content[0].text.trim().split('\n').filter(line => line.trim());
 
-        // Determine scheme info based on tense
-        let schemeInfo;
-        if (tense === 'past') {
-            schemeInfo = 'Past Simple: same form for all subjects';
-        } else if (tense === 'future') {
-            schemeInfo = 'Future Simple: will + base verb for all subjects';
+        // Determine response format based on mode
+        if (mode === 'test') {
+            // Test mode returns Russian + 4 English sentences
+            return res.status(200).json({
+                russian: sentences[0],
+                sentences: sentences.slice(1),
+                tense: tense
+            });
         } else {
-            const isScheme2 = sentences[0].includes(verb + 's') || sentences[0].includes(verb + 'es');
-            schemeInfo = isScheme2 
-                ? 'Scheme 2: he/she/it forms (third person singular)' 
-                : 'Scheme 1: I/you/we/they forms';
+            // Exercise mode returns 4 English sentences + scheme info
+            let schemeInfo;
+            if (tense === 'past') {
+                schemeInfo = 'Past Simple: same form for all subjects';
+            } else if (tense === 'future') {
+                schemeInfo = 'Future Simple: will + base verb for all subjects';
+            } else {
+                const isScheme2 = sentences[0].includes(verb + 's') || sentences[0].includes(verb + 'es');
+                schemeInfo = isScheme2 
+                    ? 'Scheme 2: he/she/it forms (third person singular)' 
+                    : 'Scheme 1: I/you/we/they forms';
+            }
+            
+            return res.status(200).json({
+                sentences: sentences,
+                schemeInfo: schemeInfo
+            });
         }
-
-        return res.status(200).json({
-            sentences: sentences,
-            schemeInfo: schemeInfo
-        });
 
     } catch (error) {
         console.error('Error calling Anthropic API:', error);
