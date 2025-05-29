@@ -272,6 +272,7 @@
             <h2>Core Grammar</h2>
             <button class="menu-button" onclick="startPresentSimple()">Present Simple</button>
             <button class="menu-button" onclick="startPastSimple()">Past Simple</button>
+            <button class="menu-button" onclick="startFutureSimple()">Future Simple</button>
             <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
         </div>
 
@@ -303,6 +304,35 @@
             <button class="back-button" onclick="showExercises()">Back to Exercises</button>
         </div>
 
+        <!-- Future Simple Exercise -->
+        <div id="futureSimple" class="screen hidden">
+            <h2>Future Simple</h2>
+            <p class="exercise-title">Practice changing subjects with future tense</p>
+            
+            <div class="verb-info" id="currentVerbFuture">Current verb: go</div>
+            <div class="scheme-info" id="schemeInfoFuture">Loading...</div>
+            
+            <div class="exercise-container">
+                <div id="sentenceDisplayFuture">
+                    <div class="sentence" id="sentenceFuture1">Loading...</div>
+                    <div class="sentence" id="sentenceFuture2">Loading...</div>
+                    <div class="sentence" id="sentenceFuture3">Loading...</div>
+                    <div class="sentence" id="sentenceFuture4">Loading...</div>
+                </div>
+            </div>
+
+            <div id="errorMessageFuture" class="error-message hidden"></div>
+
+            <div class="navigation-buttons">
+                <button class="nav-button" id="backBtnFuture" onclick="previousSubjectFuture()" disabled>Back</button>
+                <button class="nav-button" id="changeWordBtnFuture" onclick="changeVerbFuture()">Change the Word</button>
+                <button class="nav-button" onclick="playAudioFuture()">🔊 Play</button>
+                <button class="nav-button" id="nextBtnFuture" onclick="nextSubjectFuture()">Next</button>
+            </div>
+            
+            <button class="back-button" onclick="showExercises()">Back to Exercises</button>
+        </div>
+
         <!-- Past Simple Exercise -->
         <div id="pastSimple" class="screen hidden">
             <h2>Past Simple</h2>
@@ -325,6 +355,7 @@
             <div class="navigation-buttons">
                 <button class="nav-button" id="backBtnPast" onclick="previousSubjectPast()" disabled>Back</button>
                 <button class="nav-button" id="changeWordBtnPast" onclick="changeVerbPast()">Change the Word</button>
+                <button class="nav-button" onclick="playAudioPast()">🔊 Play</button>
                 <button class="nav-button" id="nextBtnPast" onclick="nextSubjectPast()">Next</button>
             </div>
             
@@ -341,7 +372,7 @@
 
     <script>
         // Data
-        const verbs = ['go', 'fix', 'get'];
+        const verbs = ['go', 'fix', 'get', 'work', 'play', 'study', 'eat', 'take', 'make', 'read', 'write', 'speak'];
         const allSubjects = ['I', 'you', 'he', 'she', 'it', 'we', 'they', 'my friend', 'my friends', 'your dog', 'your dogs', 'his teacher', 'his teachers'];
 
         // State
@@ -353,6 +384,13 @@
         // State for Past Simple
         let currentVerbPast = 'go';
         let currentSubjectIndexPast = 0;
+        
+        // State for Future Simple
+        let currentVerbFuture = 'go';
+        let currentSubjectIndexFuture = 0;
+        
+        // Audio settings
+        let audioEnabled = true;
 
         // Navigation functions
         function showScreen(screenId) {
@@ -410,6 +448,203 @@
             showScreen('pastSimple');
             currentSubjectIndexPast = 0;
             updatePastSimpleDisplay();
+        }
+
+        // Future Simple Exercise Functions
+        async function updateFutureSimpleDisplay() {
+            if (isLoading) return;
+            
+            const subject = allSubjects[currentSubjectIndexFuture];
+            
+            // Show loading state
+            setLoadingStateFuture(true);
+            
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        subject: subject,
+                        verb: currentVerbFuture,
+                        tense: 'future'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                
+                // Update sentences with API response
+                document.getElementById('sentenceFuture1').textContent = data.sentences[0];
+                document.getElementById('sentenceFuture2').textContent = data.sentences[1];
+                document.getElementById('sentenceFuture3').textContent = data.sentences[2];
+                document.getElementById('sentenceFuture4').textContent = data.sentences[3];
+                
+                // Update scheme info
+                document.getElementById('schemeInfoFuture').textContent = 'Future Simple: will + base verb for all subjects';
+                
+                // Hide error message
+                document.getElementById('errorMessageFuture').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showErrorFuture('Failed to generate sentences. Using fallback logic.');
+                useFallbackLogicFuture(subject);
+            } finally {
+                setLoadingStateFuture(false);
+            }
+            
+            // Update navigation buttons
+            document.getElementById('backBtnFuture').disabled = currentSubjectIndexFuture === 0;
+            document.getElementById('nextBtnFuture').disabled = currentSubjectIndexFuture === allSubjects.length - 1;
+            
+            // Update verb info
+            document.getElementById('currentVerbFuture').textContent = `Current verb: ${currentVerbFuture}`;
+        }
+
+        function setLoadingStateFuture(loading) {
+            isLoading = loading;
+            const buttons = ['backBtnFuture', 'nextBtnFuture', 'changeWordBtnFuture'];
+            buttons.forEach(btnId => {
+                document.getElementById(btnId).disabled = loading || (btnId === 'backBtnFuture' && currentSubjectIndexFuture === 0) || (btnId === 'nextBtnFuture' && currentSubjectIndexFuture === allSubjects.length - 1);
+            });
+            
+            if (loading) {
+                document.querySelectorAll('#sentenceDisplayFuture .sentence').forEach(el => {
+                    el.innerHTML = 'Generating... <span class="loading"></span>';
+                });
+            }
+        }
+
+        function showErrorFuture(message) {
+            const errorEl = document.getElementById('errorMessageFuture');
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+        }
+
+        function useFallbackLogicFuture(subject) {
+            // Simple fallback for future tense
+            document.getElementById('sentenceFuture1').textContent = `${subject} will ${currentVerbFuture}`;
+            document.getElementById('sentenceFuture2').textContent = `${subject} won't ${currentVerbFuture}`;
+            document.getElementById('sentenceFuture3').textContent = `Will ${subject} ${currentVerbFuture}?`;
+            document.getElementById('sentenceFuture4').textContent = `Where will ${subject} ${currentVerbFuture}?`;
+            
+            document.getElementById('schemeInfoFuture').textContent = 'Future Simple: will + base verb for all subjects';
+        }
+
+        function nextSubjectFuture() {
+            if (currentSubjectIndexFuture < allSubjects.length - 1 && !isLoading) {
+                currentSubjectIndexFuture++;
+                updateFutureSimpleDisplay();
+            }
+        }
+
+        function previousSubjectFuture() {
+            if (currentSubjectIndexFuture > 0 && !isLoading) {
+                currentSubjectIndexFuture--;
+                updateFutureSimpleDisplay();
+            }
+        }
+
+        function changeVerbFuture() {
+            if (isLoading) return;
+            
+            // Get a random verb different from the current one
+            let newVerb;
+            do {
+                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
+            } while (newVerb === currentVerbFuture);
+            
+            currentVerbFuture = newVerb;
+            
+            // Get a random subject
+            currentSubjectIndexFuture = Math.floor(Math.random() * allSubjects.length);
+            
+            updateFutureSimpleDisplay();
+        }
+
+        // Audio Functions
+        function speak(text) {
+            if ('speechSynthesis' in window && audioEnabled) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9; // Slightly slower for learning
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function playAudioPresent() {
+            const sentences = [
+                document.getElementById('sentence1').textContent,
+                document.getElementById('sentence2').textContent,
+                document.getElementById('sentence3').textContent,
+                document.getElementById('sentence4').textContent
+            ];
+            
+            // Speak all sentences with pauses
+            let index = 0;
+            function speakNext() {
+                if (index < sentences.length) {
+                    speak(sentences[index]);
+                    index++;
+                    setTimeout(speakNext, 2000); // 2 second pause between sentences
+                }
+            }
+            speakNext();
+        }
+
+        function playAudioPast() {
+            const sentences = [
+                document.getElementById('sentencePast1').textContent,
+                document.getElementById('sentencePast2').textContent,
+                document.getElementById('sentencePast3').textContent,
+                document.getElementById('sentencePast4').textContent
+            ];
+            
+            let index = 0;
+            function speakNext() {
+                if (index < sentences.length) {
+                    speak(sentences[index]);
+                    index++;
+                    setTimeout(speakNext, 2000);
+                }
+            }
+            speakNext();
+        }
+
+        function playAudioFuture() {
+            const sentences = [
+                document.getElementById('sentenceFuture1').textContent,
+                document.getElementById('sentenceFuture2').textContent,
+                document.getElementById('sentenceFuture3').textContent,
+                document.getElementById('sentenceFuture4').textContent
+            ];
+            
+            let index = 0;
+            function speakNext() {
+                if (index < sentences.length) {
+                    speak(sentences[index]);
+                    index++;
+                    setTimeout(speakNext, 2000);
+                }
+            }
+            speakNext();
+        }
+        
+        function startFutureSimple() {
+            showScreen('futureSimple');
+            currentSubjectIndexFuture = 0;
+            updateFutureSimpleDisplay();
         }
 
         // Exercise functions
@@ -500,9 +735,14 @@
             if (isThirdPersonSingular) {
                 aux = 'does';
                 auxNeg = "doesn't";
-                if (currentVerb === 'go') verbForm = 'goes';
-                else if (currentVerb === 'fix') verbForm = 'fixes';
-                else if (currentVerb === 'get') verbForm = 'gets';
+                // Handle third person singular forms
+                if (currentVerb.endsWith('y') && !['a','e','i','o','u'].includes(currentVerb[currentVerb.length-2])) {
+                    verbForm = currentVerb.slice(0, -1) + 'ies'; // study → studies
+                } else if (currentVerb.endsWith('o') || currentVerb.endsWith('s') || currentVerb.endsWith('x') || currentVerb.endsWith('ch') || currentVerb.endsWith('sh')) {
+                    verbForm = currentVerb + 'es'; // go → goes, fix → fixes
+                } else {
+                    verbForm = currentVerb + 's'; // eat → eats
+                }
             }
             
             document.getElementById('sentence1').textContent = `${subject} ${verbForm}`;
@@ -624,7 +864,13 @@
 
         function useFallbackLogicPast(subject) {
             // Simple fallback for past tense
-            let pastForm = currentVerbPast === 'go' ? 'went' : currentVerbPast + 'ed';
+            const irregularPast = {
+                'go': 'went', 'get': 'got', 'eat': 'ate', 
+                'take': 'took', 'make': 'made', 'write': 'wrote',
+                'speak': 'spoke', 'read': 'read'
+            };
+            
+            let pastForm = irregularPast[currentVerbPast] || currentVerbPast + 'ed';
             
             document.getElementById('sentencePast1').textContent = `${subject} ${pastForm}`;
             document.getElementById('sentencePast2').textContent = `${subject} didn't ${currentVerbPast}`;
