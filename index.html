@@ -390,7 +390,16 @@
 
     <script>
         // Data
-        const verbs = ['go', 'fix', 'get', 'work', 'play', 'study', 'eat', 'take', 'make', 'read', 'write', 'speak'];
+        const verbs = [
+            // Original verbs
+            'go', 'fix', 'get', 'work', 'play', 'study', 'eat', 'take', 'make', 'read', 'write', 'speak',
+            // New irregular verbs from the table
+            'be', 'beat', 'become', 'begin', 'break', 'bring', 'build', 'buy', 'catch', 'choose',
+            'come', 'cost', 'do', 'draw', 'dream', 'drink', 'drive', 'fall', 'feel', 'find',
+            'fly', 'give', 'grow', 'have', 'hear', 'know', 'learn', 'leave', 'lie', 'meet',
+            'put', 'run', 'say', 'see', 'seek', 'show', 'sing', 'sit', 'sleep', 'stand',
+            'swim', 'teach', 'tell', 'think', 'throw', 'understand'
+        ];
         const allSubjects = ['I', 'you', 'he', 'she', 'it', 'we', 'they', 'my friend', 'my friends', 'your dog', 'your dogs', 'his teacher', 'his teachers'];
 
         // State
@@ -750,7 +759,20 @@
             let aux = 'do';
             let auxNeg = "don't";
             
-            if (isThirdPersonSingular) {
+            // Special cases for irregular present forms
+            if (currentVerb === 'be') {
+                if (subject.toLowerCase() === 'i') {
+                    verbForm = 'am';
+                } else if (isThirdPersonSingular) {
+                    verbForm = 'is';
+                } else {
+                    verbForm = 'are';
+                }
+            } else if (currentVerb === 'have' && isThirdPersonSingular) {
+                verbForm = 'has';
+            } else if (currentVerb === 'do' && isThirdPersonSingular) {
+                verbForm = 'does';
+            } else if (isThirdPersonSingular) {
                 aux = 'does';
                 auxNeg = "doesn't";
                 // Handle third person singular forms
@@ -763,10 +785,18 @@
                 }
             }
             
-            document.getElementById('sentence1').textContent = `${subject} ${verbForm}`;
-            document.getElementById('sentence2').textContent = `${subject} ${auxNeg} ${currentVerb}`;
-            document.getElementById('sentence3').textContent = `${aux.charAt(0).toUpperCase() + aux.slice(1)} ${subject} ${currentVerb}?`;
-            document.getElementById('sentence4').textContent = `Where ${aux} ${subject} ${currentVerb}?`;
+            // For 'be', we don't use do/does in questions
+            if (currentVerb === 'be') {
+                document.getElementById('sentence1').textContent = `${subject} ${verbForm}`;
+                document.getElementById('sentence2').textContent = `${subject} ${verbForm} not`;
+                document.getElementById('sentence3').textContent = `${verbForm.charAt(0).toUpperCase() + verbForm.slice(1)} ${subject}?`;
+                document.getElementById('sentence4').textContent = `Where ${verbForm} ${subject}?`;
+            } else {
+                document.getElementById('sentence1').textContent = `${subject} ${verbForm}`;
+                document.getElementById('sentence2').textContent = `${subject} ${auxNeg} ${currentVerb}`;
+                document.getElementById('sentence3').textContent = `${aux.charAt(0).toUpperCase() + aux.slice(1)} ${subject} ${currentVerb}?`;
+                document.getElementById('sentence4').textContent = `Where ${aux} ${subject} ${currentVerb}?`;
+            }
             
             document.getElementById('schemeInfo').textContent = isThirdPersonSingular ? 
                 'Scheme 2: he/she/it forms (third person singular)' : 
@@ -885,15 +915,44 @@
             const irregularPast = {
                 'go': 'went', 'get': 'got', 'eat': 'ate', 
                 'take': 'took', 'make': 'made', 'write': 'wrote',
-                'speak': 'spoke', 'read': 'read'
+                'speak': 'spoke', 'read': 'read', 'be': 'was/were',
+                'beat': 'beat', 'become': 'became', 'begin': 'began',
+                'break': 'broke', 'bring': 'brought', 'build': 'built',
+                'buy': 'bought', 'catch': 'caught', 'choose': 'chose',
+                'come': 'came', 'cost': 'cost', 'do': 'did',
+                'draw': 'drew', 'dream': 'dreamt', 'drink': 'drank',
+                'drive': 'drove', 'fall': 'fell', 'feel': 'felt',
+                'find': 'found', 'fly': 'flew', 'give': 'gave',
+                'grow': 'grew', 'have': 'had', 'hear': 'heard',
+                'know': 'knew', 'learn': 'learnt', 'leave': 'left',
+                'lie': 'lay', 'meet': 'met', 'put': 'put',
+                'run': 'ran', 'say': 'said', 'see': 'saw',
+                'seek': 'sought', 'show': 'showed', 'sing': 'sang',
+                'sit': 'sat', 'sleep': 'slept', 'stand': 'stood',
+                'swim': 'swam', 'teach': 'taught', 'tell': 'told',
+                'think': 'thought', 'throw': 'threw', 'understand': 'understood'
             };
             
             let pastForm = irregularPast[currentVerbPast] || currentVerbPast + 'ed';
             
-            document.getElementById('sentencePast1').textContent = `${subject} ${pastForm}`;
-            document.getElementById('sentencePast2').textContent = `${subject} didn't ${currentVerbPast}`;
-            document.getElementById('sentencePast3').textContent = `Did ${subject} ${currentVerbPast}?`;
-            document.getElementById('sentencePast4').textContent = `Where did ${subject} ${currentVerbPast}?`;
+            // Special handling for 'be'
+            if (currentVerbPast === 'be') {
+                if (['I', 'he', 'she', 'it', 'my friend', 'your dog', 'his teacher'].includes(subject)) {
+                    pastForm = 'was';
+                } else {
+                    pastForm = 'were';
+                }
+                
+                document.getElementById('sentencePast1').textContent = `${subject} ${pastForm}`;
+                document.getElementById('sentencePast2').textContent = `${subject} ${pastForm}n't`;
+                document.getElementById('sentencePast3').textContent = `${pastForm.charAt(0).toUpperCase() + pastForm.slice(1)} ${subject}?`;
+                document.getElementById('sentencePast4').textContent = `Where ${pastForm} ${subject}?`;
+            } else {
+                document.getElementById('sentencePast1').textContent = `${subject} ${pastForm}`;
+                document.getElementById('sentencePast2').textContent = `${subject} didn't ${currentVerbPast}`;
+                document.getElementById('sentencePast3').textContent = `Did ${subject} ${currentVerbPast}?`;
+                document.getElementById('sentencePast4').textContent = `Where did ${subject} ${currentVerbPast}?`;
+            }
             
             document.getElementById('schemeInfoPast').textContent = 'Past Simple: same form for all subjects';
         }
