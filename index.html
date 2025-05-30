@@ -777,30 +777,42 @@
                 
                 console.log('API Response:', data); // Debug log
                 
-                // Check the response structure
-                if (!data.russian && data.sentences) {
-                    // If API returned old format (no Russian), use fallback
-                    console.log('API returned old format without Russian');
+                // Check if the API is returning English in the Russian field
+                if (data.russian && /^[A-Za-z\s]+$/.test(data.russian)) {
+                    console.log('API returned English instead of Russian, using fallback');
                     generateFallbackTest();
                     return;
                 }
                 
-                // Display Russian translation (force visibility)
-                const russianEl = document.getElementById('russianSentence');
-                russianEl.textContent = data.russian || 'Русский перевод';
-                russianEl.className = 'russian'; // Reset classes
-                russianEl.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
-                
-                // Store English sentences (force hidden)
-                const englishIds = ['englishPositive', 'englishNegative', 'englishQuestion', 'englishWhQuestion'];
-                englishIds.forEach((id, index) => {
-                    const el = document.getElementById(id);
-                    if (data.sentences && data.sentences[index]) {
-                        el.textContent = data.sentences[index];
+                // If we have proper Russian
+                if (data.russian && data.sentences && data.sentences.length >= 3) {
+                    // Display Russian translation
+                    const russianEl = document.getElementById('russianSentence');
+                    russianEl.textContent = data.russian;
+                    russianEl.className = 'russian';
+                    russianEl.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                    
+                    // Handle both 3 and 4 sentence formats
+                    let sentences = data.sentences;
+                    if (sentences.length === 3) {
+                        // If only 3 sentences, the positive is in the Russian field
+                        sentences = [data.russian, ...data.sentences];
                     }
-                    el.className = 'english hidden'; // Reset classes
-                    el.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
-                });
+                    
+                    // Store English sentences (force hidden)
+                    const englishIds = ['englishPositive', 'englishNegative', 'englishQuestion', 'englishWhQuestion'];
+                    englishIds.forEach((id, index) => {
+                        const el = document.getElementById(id);
+                        if (sentences[index]) {
+                            el.textContent = sentences[index];
+                        }
+                        el.className = 'english hidden';
+                        el.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+                    });
+                } else {
+                    // Use fallback for any other issues
+                    generateFallbackTest();
+                }
                 
                 // Hide error message
                 document.getElementById('testError').classList.add('hidden');
