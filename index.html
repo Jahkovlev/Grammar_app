@@ -783,7 +783,8 @@
                     /^[A-Za-z\s]+/.test(data.russian) || // Starts with English
                     data.russian.includes('(') || // Contains parentheses
                     data.russian.includes(')') ||
-                    /\b(I|you|he|she|it|we|they|will|won't|did|didn't|do|don't|does|doesn't)\b/i.test(data.russian) // Contains English pronouns/auxiliaries
+                    /\b(I|you|he|she|it|we|they|will|won't|did|didn't|do|don't|does|doesn't)\b/i.test(data.russian) || // Contains English pronouns/auxiliaries
+                    /\b(go|fix|get|work|play|study|eat|take|make|read|write|speak|be|beat|become|begin|break|bring|build|buy|catch|choose|come|cost|do|draw|dream|drink|drive|fall|feel|find|fly|give|grow|have|hear|know|learn|leave|lie|meet|put|run|say|see|seek|show|sing|sit|sleep|stand|swim|teach|tell|think|throw|understand)\b/i.test(data.russian) // Contains English verbs
                 )) {
                     console.log('API returned malformed Russian, using fallback');
                     generateFallbackTest();
