@@ -777,9 +777,15 @@
                 
                 console.log('API Response:', data); // Debug log
                 
-                // Check if the API is returning English in the Russian field
-                if (data.russian && /^[A-Za-z\s]+$/.test(data.russian)) {
-                    console.log('API returned English instead of Russian, using fallback');
+                // Check if the API is returning a malformed Russian translation
+                // (contains English words, parentheses, or looks wrong)
+                if (data.russian && (
+                    /^[A-Za-z\s]+/.test(data.russian) || // Starts with English
+                    data.russian.includes('(') || // Contains parentheses
+                    data.russian.includes(')') ||
+                    /\b(I|you|he|she|it|we|they|will|won't|did|didn't|do|don't|does|doesn't)\b/i.test(data.russian) // Contains English pronouns/auxiliaries
+                )) {
+                    console.log('API returned malformed Russian, using fallback');
                     generateFallbackTest();
                     return;
                 }
@@ -795,8 +801,10 @@
                     // Handle both 3 and 4 sentence formats
                     let sentences = data.sentences;
                     if (sentences.length === 3) {
-                        // If only 3 sentences, the positive is in the Russian field
-                        sentences = [data.russian, ...data.sentences];
+                        // If only 3 sentences, assume positive is missing
+                        // Try to construct it from the data
+                        const positive = data.russian.match(/^[A-Za-z\s]+/) ? data.russian : 'Error';
+                        sentences = [positive, ...data.sentences];
                     }
                     
                     // Store English sentences (force hidden)
@@ -840,19 +848,30 @@
                     'I eat': 'Я ем', 'you eat': 'Ты ешь', 'he eats': 'Он ест',
                     'she eats': 'Она ест', 'we eat': 'Мы едим', 'they eat': 'Они едят',
                     'I work': 'Я работаю', 'he works': 'Он работает', 'they work': 'Они работают',
-                    'I read': 'Я читаю', 'she reads': 'Она читает', 'we read': 'Мы читаем'
+                    'I read': 'Я читаю', 'she reads': 'Она читает', 'we read': 'Мы читаем',
+                    'I buy': 'Я покупаю', 'he buys': 'Он покупает', 'they buy': 'Они покупают',
+                    'I make': 'Я делаю', 'she makes': 'Она делает', 'we make': 'Мы делаем',
+                    'I write': 'Я пишу', 'he writes': 'Он пишет', 'they write': 'Они пишут',
+                    'I speak': 'Я говорю', 'she speaks': 'Она говорит', 'we speak': 'Мы говорим'
                 },
                 past: {
                     'I went': 'Я ходил(а)', 'you went': 'Ты ходил(а)', 'he went': 'Он ходил',
                     'she went': 'Она ходила', 'we went': 'Мы ходили', 'they went': 'Они ходили',
                     'I ate': 'Я ел(а)', 'he ate': 'Он ел', 'she ate': 'Она ела',
-                    'I worked': 'Я работал(а)', 'they worked': 'Они работали'
+                    'I worked': 'Я работал(а)', 'they worked': 'Они работали',
+                    'I bought': 'Я купил(а)', 'he bought': 'Он купил', 'she bought': 'Она купила',
+                    'I made': 'Я сделал(а)', 'he made': 'Он сделал', 'they made': 'Они сделали',
+                    'I wrote': 'Я написал(а)', 'she wrote': 'Она написала', 'we wrote': 'Мы написали'
                 },
                 future: {
                     'I will go': 'Я пойду', 'you will go': 'Ты пойдёшь', 'he will go': 'Он пойдёт',
                     'she will go': 'Она пойдёт', 'we will go': 'Мы пойдём', 'they will go': 'Они пойдут',
                     'I will eat': 'Я буду есть', 'he will eat': 'Он будет есть',
-                    'I will work': 'Я буду работать', 'she will work': 'Она будет работать'
+                    'I will work': 'Я буду работать', 'she will work': 'Она будет работать',
+                    'I will buy': 'Я куплю', 'he will buy': 'Он купит', 'she will buy': 'Она купит',
+                    'they will buy': 'Они купят', 'we will buy': 'Мы купим',
+                    'I will make': 'Я сделаю', 'he will make': 'Он сделает', 'they will make': 'Они сделают',
+                    'I will write': 'Я напишу', 'she will write': 'Она напишет', 'we will write': 'Мы напишем'
                 }
             };
             
@@ -880,7 +899,7 @@
                     `Did ${randomSubject} ${randomVerb}?`,
                     `${whWord} did ${randomSubject} ${randomVerb}?`
                 ];
-                russianSentence = russianTranslations.past[positive] || `${randomSubject} ${randomVerb} (прошедшее)`;
+                russianSentence = russianTranslations.past[positive] || generateGenericRussian(randomSubject, randomVerb, 'past');
             } else {
                 const positive = `${randomSubject} will ${randomVerb}`;
                 sentences = [
@@ -889,7 +908,7 @@
                     `Will ${randomSubject} ${randomVerb}?`,
                     `${whWord} will ${randomSubject} ${randomVerb}?`
                 ];
-                russianSentence = russianTranslations.future[positive] || `${randomSubject} ${randomVerb} (будущее)`;
+                russianSentence = russianTranslations.future[positive] || generateGenericRussian(randomSubject, randomVerb, 'future');
             }
             
             // Handle 'be' verb specially
@@ -938,6 +957,35 @@
             });
             
             currentTestData = { sentences: sentences };
+        }
+        
+        function generateGenericRussian(subject, verb, tense) {
+            const russianSubjects = {
+                'I': 'Я', 'you': 'Ты', 'he': 'Он', 'she': 'Она',
+                'it': 'Это', 'we': 'Мы', 'they': 'Они'
+            };
+            
+            const genericVerbs = {
+                present: ' (делает что-то)',
+                past: {
+                    'I': ' (делал/а)',
+                    'you': ' (делал/а)',
+                    'he': ' (делал)',
+                    'she': ' (делала)',
+                    'it': ' (делало)',
+                    'we': ' (делали)',
+                    'they': ' (делали)'
+                },
+                future: ' (будет делать)'
+            };
+            
+            const rusSubject = russianSubjects[subject] || subject;
+            
+            if (tense === 'past') {
+                return rusSubject + genericVerbs.past[subject];
+            }
+            
+            return rusSubject + (tense === 'present' ? genericVerbs.present : genericVerbs.future);
         }
         
         function getVerbFormForSubject(subject, verb) {
