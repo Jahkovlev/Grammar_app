@@ -205,30 +205,6 @@
             border-radius: 8px;
         }
 
-        .api-setup {
-            background: #f7fafc;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .api-setup input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            margin: 10px 0;
-        }
-
-        .api-setup label {
-            display: block;
-            color: #4a5568;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
         .nav-button.next-button {
             background: #48bb78;
         }
@@ -321,21 +297,8 @@
         <div id="welcomeScreen" class="screen">
             <h1>Welcome, learner!</h1>
             <p class="welcome-text">Let's go and get you fluency NOW!</p>
-            <button onclick="showApiSetup()">GO!</button>
-        </div>
-
-        <!-- API Setup -->
-        <div id="apiSetup" class="screen hidden">
-            <h2>Setup Your Learning Assistant</h2>
-            <div class="api-setup">
-                <label for="apiEndpoint">API Endpoint URL:</label>
-                <input type="text" id="apiEndpoint" placeholder="https://your-backend.vercel.app/api/conjugate">
-                <p style="font-size: 14px; color: #718096; margin-top: 5px;">
-                    Enter your backend URL that handles Anthropic API requests
-                </p>
-            </div>
-            <button onclick="saveApiSettings()">Continue</button>
-            <button class="back-button" onclick="showWelcome()">Back</button>
+            <p style="font-size: 14px; color: #718096; margin-top: 20px;">✨ Works offline - no internet required!</p>
+            <button onclick="showMainMenu()">GO!</button>
         </div>
 
         <!-- Main Menu -->
@@ -487,7 +450,6 @@
         // State
         let currentVerb = 'go';
         let currentSubjectIndex = 0;
-        let apiEndpoint = '';
         let isLoading = false;
         
         // State for Past Simple
@@ -511,32 +473,6 @@
                 screen.classList.add('hidden');
             });
             document.getElementById(screenId).classList.remove('hidden');
-        }
-
-        function showWelcome() {
-            showScreen('welcomeScreen');
-        }
-
-        function showApiSetup() {
-            // Check if API endpoint is already saved
-            const savedEndpoint = localStorage.getItem('apiEndpoint');
-            if (savedEndpoint) {
-                apiEndpoint = savedEndpoint;
-                showMainMenu();
-            } else {
-                showScreen('apiSetup');
-            }
-        }
-
-        function saveApiSettings() {
-            const endpoint = document.getElementById('apiEndpoint').value.trim();
-            if (!endpoint) {
-                alert('Please enter your API endpoint URL');
-                return;
-            }
-            apiEndpoint = endpoint;
-            localStorage.setItem('apiEndpoint', endpoint);
-            showMainMenu();
         }
 
         function showMainMenu() {
@@ -579,6 +515,13 @@
             setLoadingStateFuture(true);
             
             try {
+                // Use fallback logic for reliable conjugation
+                useFallbackLogicFuture(subject);
+                
+                // Hide error message
+                document.getElementById('errorMessageFuture').classList.add('hidden');
+                
+                /* API disabled - using fallback for better reliability
                 const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: {
@@ -605,13 +548,11 @@
                 
                 // Update scheme info
                 document.getElementById('schemeInfoFuture').textContent = 'Future Simple: will + base verb for all subjects';
-                
-                // Hide error message
-                document.getElementById('errorMessageFuture').classList.add('hidden');
+                */
                 
             } catch (error) {
                 console.error('Error:', error);
-                showErrorFuture('Failed to generate sentences. Using fallback logic.');
+                document.getElementById('errorMessageFuture').classList.add('hidden');
                 useFallbackLogicFuture(subject);
             } finally {
                 setLoadingStateFuture(false);
@@ -1215,7 +1156,13 @@
             setLoadingState(true);
             
             try {
-                // Call your backend API which will use Anthropic
+                // Use fallback logic for reliable conjugation
+                useFallbackLogic(subject);
+                
+                // Hide error message
+                document.getElementById('errorMessage').classList.add('hidden');
+                
+                /* API disabled - using fallback for better reliability
                 const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: {
@@ -1242,13 +1189,11 @@
                 
                 // Update scheme info
                 document.getElementById('schemeInfo').textContent = data.schemeInfo;
-                
-                // Hide error message
-                document.getElementById('errorMessage').classList.add('hidden');
+                */
                 
             } catch (error) {
                 console.error('Error:', error);
-                showError('Failed to generate sentences. Using fallback logic.');
+                document.getElementById('errorMessage').classList.add('hidden');
                 useFallbackLogic(subject);
             } finally {
                 setLoadingState(false);
@@ -1416,6 +1361,13 @@
             setLoadingStatePast(true);
             
             try {
+                // Use fallback logic for reliable conjugation
+                useFallbackLogicPast(subject);
+                
+                // Hide error message
+                document.getElementById('errorMessagePast').classList.add('hidden');
+                
+                /* API disabled - using fallback for better reliability
                 const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: {
@@ -1442,13 +1394,11 @@
                 
                 // Update scheme info
                 document.getElementById('schemeInfoPast').textContent = 'Past Simple: same form for all subjects';
-                
-                // Hide error message
-                document.getElementById('errorMessagePast').classList.add('hidden');
+                */
                 
             } catch (error) {
                 console.error('Error:', error);
-                showErrorPast('Failed to generate sentences. Using fallback logic.');
+                document.getElementById('errorMessagePast').classList.add('hidden');
                 useFallbackLogicPast(subject);
             } finally {
                 setLoadingStatePast(false);
