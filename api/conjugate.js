@@ -206,7 +206,7 @@ Now generate for Subject: "${subject}", Verb: "${verb}"`;
         }
 
         const response = await anthropic.messages.create({
-            model: 'claude-3-haiku-20240307', // Use a cheaper, faster model for simple tasks
+            model: 'claude-3-opus-20240229', // Changed from haiku to opus for better accuracy
             max_tokens: 150,
             temperature: 0, // Deterministic output
             messages: [{
