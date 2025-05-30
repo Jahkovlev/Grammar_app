@@ -772,24 +772,23 @@
                     throw new Error('API request failed');
                 }
 
+                // For now, always use fallback for reliable Russian
+                console.log('Using fallback for consistent quality');
+                generateFallbackTest();
+                return;
+                
+                /* Disabled API Russian generation due to inconsistency
                 const data = await response.json();
                 currentTestData = data;
                 
-                console.log('API Response:', data); // Debug log
+                console.log('API Response:', data);
                 
-                // Check if the API is returning a malformed Russian translation
-                // (contains English words, parentheses, or looks wrong)
-                if (data.russian && (
-                    /^[A-Za-z\s]+/.test(data.russian) || // Starts with English
-                    data.russian.includes('(') || // Contains parentheses
-                    data.russian.includes(')') ||
-                    /\b(I|you|he|she|it|we|they|will|won't|did|didn't|do|don't|does|doesn't)\b/i.test(data.russian) || // Contains English pronouns/auxiliaries
-                    /\b(go|fix|get|work|play|study|eat|take|make|read|write|speak|be|beat|become|begin|break|bring|build|buy|catch|choose|come|cost|do|draw|dream|drink|drive|fall|feel|find|fly|give|grow|have|hear|know|learn|leave|lie|meet|put|run|say|see|seek|show|sing|sit|sleep|stand|swim|teach|tell|think|throw|understand)\b/i.test(data.russian) // Contains English verbs
-                )) {
-                    console.log('API returned malformed Russian, using fallback');
+                if (data.russian && (...)) {
                     generateFallbackTest();
                     return;
                 }
+                ... rest of API handling ...
+                */
                 
                 // If we have proper Russian
                 if (data.russian && data.sentences && data.sentences.length >= 3) {
