@@ -965,27 +965,134 @@
                 'it': 'Это', 'we': 'Мы', 'they': 'Они'
             };
             
-            const genericVerbs = {
-                present: ' (делает что-то)',
-                past: {
-                    'I': ' (делал/а)',
-                    'you': ' (делал/а)',
-                    'he': ' (делал)',
-                    'she': ' (делала)',
-                    'it': ' (делало)',
-                    'we': ' (делали)',
-                    'they': ' (делали)'
-                },
-                future: ' (будет делать)'
+            // Russian verb translations
+            const verbTranslations = {
+                // Movement
+                'go': { present: 'идёт', past: 'шёл/шла/шло', future: 'пойдёт' },
+                'come': { present: 'приходит', past: 'пришёл/пришла', future: 'придёт' },
+                'drive': { present: 'едет', past: 'ехал/ехала', future: 'поедет' },
+                'fly': { present: 'летает', past: 'летал/летала', future: 'полетит' },
+                'run': { present: 'бежит', past: 'бежал/бежала', future: 'побежит' },
+                'swim': { present: 'плавает', past: 'плавал/плавала', future: 'будет плавать' },
+                
+                // Actions
+                'eat': { present: 'ест', past: 'ел/ела', future: 'будет есть' },
+                'drink': { present: 'пьёт', past: 'пил/пила', future: 'будет пить' },
+                'read': { present: 'читает', past: 'читал/читала', future: 'будет читать' },
+                'write': { present: 'пишет', past: 'писал/писала', future: 'будет писать' },
+                'speak': { present: 'говорит', past: 'говорил/говорила', future: 'будет говорить' },
+                'work': { present: 'работает', past: 'работал/работала', future: 'будет работать' },
+                'study': { present: 'учится', past: 'учился/училась', future: 'будет учиться' },
+                'play': { present: 'играет', past: 'играл/играла', future: 'будет играть' },
+                
+                // Creation/manipulation
+                'make': { present: 'делает', past: 'делал/делала', future: 'сделает' },
+                'build': { present: 'строит', past: 'строил/строила', future: 'построит' },
+                'fix': { present: 'чинит', past: 'чинил/чинила', future: 'починит' },
+                'break': { present: 'ломает', past: 'ломал/ломала', future: 'сломает' },
+                'draw': { present: 'рисует', past: 'рисовал/рисовала', future: 'нарисует' },
+                
+                // Acquisition
+                'buy': { present: 'покупает', past: 'купил/купила', future: 'купит' },
+                'get': { present: 'получает', past: 'получил/получила', future: 'получит' },
+                'take': { present: 'берёт', past: 'взял/взяла', future: 'возьмёт' },
+                'bring': { present: 'приносит', past: 'принёс/принесла', future: 'принесёт' },
+                'give': { present: 'даёт', past: 'дал/дала', future: 'даст' },
+                'find': { present: 'находит', past: 'нашёл/нашла', future: 'найдёт' },
+                
+                // Mental/perception
+                'think': { present: 'думает', past: 'думал/думала', future: 'будет думать' },
+                'know': { present: 'знает', past: 'знал/знала', future: 'будет знать' },
+                'understand': { present: 'понимает', past: 'понимал/понимала', future: 'поймёт' },
+                'see': { present: 'видит', past: 'видел/видела', future: 'увидит' },
+                'hear': { present: 'слышит', past: 'слышал/слышала', future: 'услышит' },
+                'feel': { present: 'чувствует', past: 'чувствовал/чувствовала', future: 'почувствует' },
+                
+                // Other common verbs
+                'have': { present: 'имеет', past: 'имел/имела', future: 'будет иметь' },
+                'do': { present: 'делает', past: 'делал/делала', future: 'сделает' },
+                'say': { present: 'говорит', past: 'сказал/сказала', future: 'скажет' },
+                'tell': { present: 'рассказывает', past: 'рассказал/рассказала', future: 'расскажет' },
+                'meet': { present: 'встречает', past: 'встретил/встретила', future: 'встретит' },
+                'leave': { present: 'уходит', past: 'ушёл/ушла', future: 'уйдёт' },
+                'sleep': { present: 'спит', past: 'спал/спала', future: 'будет спать' },
+                'sit': { present: 'сидит', past: 'сидел/сидела', future: 'будет сидеть' },
+                'stand': { present: 'стоит', past: 'стоял/стояла', future: 'будет стоять' },
+                'begin': { present: 'начинает', past: 'начал/начала', future: 'начнёт' },
+                'become': { present: 'становится', past: 'стал/стала', future: 'станет' },
+                'teach': { present: 'учит', past: 'учил/учила', future: 'научит' },
+                'learn': { present: 'учится', past: 'учился/училась', future: 'научится' },
+                'choose': { present: 'выбирает', past: 'выбрал/выбрала', future: 'выберет' },
+                'fall': { present: 'падает', past: 'упал/упала', future: 'упадёт' },
+                'grow': { present: 'растёт', past: 'рос/росла', future: 'вырастет' },
+                'throw': { present: 'бросает', past: 'бросил/бросила', future: 'бросит' },
+                'catch': { present: 'ловит', past: 'поймал/поймала', future: 'поймает' },
+                'sing': { present: 'поёт', past: 'пел/пела', future: 'споёт' },
+                'cost': { present: 'стоит', past: 'стоил/стоила', future: 'будет стоить' },
+                'put': { present: 'кладёт', past: 'положил/положила', future: 'положит' },
+                'show': { present: 'показывает', past: 'показал/показала', future: 'покажет' },
+                'seek': { present: 'ищет', past: 'искал/искала', future: 'будет искать' },
+                'lie': { present: 'лежит', past: 'лежал/лежала', future: 'будет лежать' },
+                'beat': { present: 'бьёт', past: 'бил/била', future: 'побьёт' },
+                'dream': { present: 'мечтает', past: 'мечтал/мечтала', future: 'будет мечтать' },
+                
+                // Be verb special handling
+                'be': { present: 'есть', past: 'был/была/было', future: 'будет' }
             };
             
             const rusSubject = russianSubjects[subject] || subject;
+            const verbForms = verbTranslations[verb] || { 
+                present: 'делает', 
+                past: 'делал/делала', 
+                future: 'будет делать' 
+            };
             
-            if (tense === 'past') {
-                return rusSubject + genericVerbs.past[subject];
+            // Get the appropriate verb form
+            let verbForm = verbForms[tense];
+            
+            // Handle gender/number agreement for past tense
+            if (tense === 'past' && verbForm.includes('/')) {
+                const forms = verbForm.split('/');
+                if (subject === 'he' || subject === 'I' || subject === 'you') {
+                    verbForm = forms[0]; // masculine
+                } else if (subject === 'she') {
+                    verbForm = forms[1]; // feminine
+                } else if (subject === 'it') {
+                    verbForm = forms[2] || forms[1]; // neuter
+                } else {
+                    verbForm = forms[0].replace(/л$/, 'ли'); // plural
+                }
             }
             
-            return rusSubject + (tense === 'present' ? genericVerbs.present : genericVerbs.future);
+            // Conjugate for present tense
+            if (tense === 'present') {
+                // Simple conjugation adjustment for 1st person
+                if (subject === 'I') {
+                    verbForm = verbForm.replace(/ет$/, 'ю').replace(/ит$/, 'ю').replace(/ёт$/, 'ю');
+                } else if (subject === 'you') {
+                    verbForm = verbForm.replace(/ет$/, 'ешь').replace(/ит$/, 'ишь').replace(/ёт$/, 'ёшь');
+                } else if (subject === 'we') {
+                    verbForm = verbForm.replace(/ет$/, 'ем').replace(/ит$/, 'им').replace(/ёт$/, 'ём');
+                } else if (subject === 'they') {
+                    verbForm = verbForm.replace(/ет$/, 'ют').replace(/ит$/, 'ят').replace(/ёт$/, 'ют');
+                }
+            }
+            
+            // Conjugate for future tense
+            if (tense === 'future' && !verbForm.includes('будет')) {
+                // Perfective future conjugation
+                if (subject === 'I') {
+                    verbForm = verbForm.replace(/ёт$/, 'у').replace(/ет$/, 'у').replace(/ит$/, 'у');
+                } else if (subject === 'you') {
+                    verbForm = verbForm.replace(/ёт$/, 'ёшь').replace(/ет$/, 'ешь').replace(/ит$/, 'ишь');
+                } else if (subject === 'we') {
+                    verbForm = verbForm.replace(/ёт$/, 'ём').replace(/ет$/, 'ем').replace(/ит$/, 'им');
+                } else if (subject === 'they') {
+                    verbForm = verbForm.replace(/ёт$/, 'ут').replace(/ет$/, 'ут').replace(/ит$/, 'ят');
+                }
+            }
+            
+            return rusSubject + ' ' + verbForm;
         }
         
         function getVerbFormForSubject(subject, verb) {
