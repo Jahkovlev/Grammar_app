@@ -91,6 +91,17 @@
         .menu-button:hover {
             background: #38a169;
         }
+        
+        .category-button {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            background: #4299e1;
+        }
+        
+        .category-button:hover {
+            background: #3182ce;
+        }
 
         .back-button {
             background: #f56565;
@@ -136,6 +147,29 @@
             border-radius: 15px;
             padding: 25px;
             margin: 20px 0;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .exercise-container:hover {
+            background: #edf2f7;
+        }
+        
+        .exercise-container::after {
+            content: 'Клик, чтобы скрыть/показать примеры';
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 12px;
+            color: #a0aec0;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .exercise-container:hover::after {
+            opacity: 1;
         }
 
         .sentence {
@@ -155,10 +189,16 @@
         }
 
         .exercise-title {
-            font-size: 18px;
+            font-size: 16px;
             color: #718096;
             margin-bottom: 20px;
             font-style: italic;
+            line-height: 1.5;
+        }
+        
+        #testInstructions:hover {
+            text-decoration: underline;
+            color: #4a5568;
         }
 
         .hidden {
@@ -390,6 +430,21 @@
         .tense-badge.past-perfect { background: #ed8936; }
         .tense-badge.past-perfect:hover { box-shadow: 0 4px 15px rgba(237, 137, 54, 0.5); }
         
+        .tense-badge.present-continuous { background: #38b2ac; }
+        .tense-badge.present-continuous:hover { box-shadow: 0 4px 15px rgba(56, 178, 172, 0.5); }
+        
+        .tense-badge.past-continuous { background: #e53e3e; }
+        .tense-badge.past-continuous:hover { box-shadow: 0 4px 15px rgba(229, 62, 62, 0.5); }
+        
+        .tense-badge.future-continuous { background: #3182ce; }
+        .tense-badge.future-continuous:hover { box-shadow: 0 4px 15px rgba(49, 130, 206, 0.5); }
+        
+        .tense-badge.present-perfect-continuous { background: #805ad5; }
+        .tense-badge.present-perfect-continuous:hover { box-shadow: 0 4px 15px rgba(128, 90, 213, 0.5); }
+        
+        .tense-badge.past-perfect-continuous { background: #dd6b20; }
+        .tense-badge.past-perfect-continuous:hover { box-shadow: 0 4px 15px rgba(221, 107, 32, 0.5); }
+        
         .english {
             font-size: 22px;
             color: #2d3748;
@@ -423,7 +478,7 @@
         }
         
         #testContainer:after {
-            content: 'Tap to reveal answer';
+            content: 'Клик для ответа';
             position: absolute;
             bottom: 10px;
             right: 10px;
@@ -433,7 +488,11 @@
         }
         
         #testContainer.complete:after {
-            content: 'Complete! Try a new example';
+            content: 'Готово! Попробуй новый пример';
+        }
+        
+        .exercise-screen {
+            /* Common styling for all exercise screens */
         }
         
         @media (max-width: 480px) {
@@ -474,45 +533,77 @@
                 box-shadow: 0 2px 20px rgba(102, 126, 234, 0.6);
             }
         }
+        
+        @keyframes drillPulse {
+            0%, 100% {
+                transform: scaleY(1.1) scale(1);
+                filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+            }
+            50% {
+                transform: scaleY(1.1) scale(1.08);
+                filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.4));
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Welcome Screen -->
         <div id="welcomeScreen" class="screen">
-            <h1>Welcome to Grammardrillo!</h1>
-            <p class="welcome-text">Let's go and get you fluency NOW!</p>
-            <p style="font-size: 14px; color: #718096; margin-top: 20px;">✨ Works offline - no internet required!</p>
-            <button onclick="showMainMenu()">GO!</button>
+            <h1 style="font-size: 22px; margin-bottom: 10px;">Welcome to <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 6px;">Grammar</span>drillo!</h1>
+            <p class="welcome-text" style="font-size: 42px; font-weight: bold; color: #2d3748; margin: 30px 0;">It's time to <strong style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-family: Impact, Arial Black, sans-serif; font-size: 64px; letter-spacing: 3px; text-shadow: none; display: inline-block; transform: scaleY(1.1); animation: drillPulse 2s ease-in-out infinite; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));">DRILL</strong></p>
+            <p style="font-size: 14px; color: #718096; margin-top: 20px;">✨ Все времена и неправильные глаголы</p>
+            <button onclick="app.showMainMenu()">GO!</button>
         </div>
 
         <!-- Main Menu -->
         <div id="mainMenu" class="screen hidden">
             <h1>Main Menu</h1>
-            <button class="menu-button" onclick="showExercises()">Exercises</button>
-            <button class="menu-button" onclick="showTestYourself()">Test Yourself</button>
+            <button class="menu-button" onclick="app.showExercises()">Exercises</button>
+            <button class="menu-button" onclick="app.showTestYourself()">Test Yourself</button>
         </div>
 
         <!-- Exercises Menu -->
         <div id="exercisesMenu" class="screen hidden">
-            <h2>Core Grammar</h2>
-            <button class="menu-button" onclick="startPresentSimple()">Present Simple</button>
-            <button class="menu-button" onclick="startPastSimple()">Past Simple</button>
-            <button class="menu-button" onclick="startFutureSimple()">Future Simple</button>
-            <button class="menu-button" onclick="startPresentPerfect()">Present Perfect</button>
-            <button class="menu-button" onclick="startPastPerfect()">Past Perfect</button>
-            <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
+            <h2>Choose Category</h2>
+            <button class="category-button" onclick="app.showSimpleMenu()">Simple Tenses</button>
+            <button class="category-button" onclick="app.showContinuousMenu()">Continuous Tenses</button>
+            <button class="back-button" onclick="app.showMainMenu()">Back to Main Menu</button>
+        </div>
+        
+        <!-- Simple Tenses Menu -->
+        <div id="simpleMenu" class="screen hidden">
+            <h2>Simple Tenses</h2>
+            <button class="menu-button" onclick="app.startExercise('present')">Present Simple</button>
+            <button class="menu-button" onclick="app.startExercise('past')">Past Simple</button>
+            <button class="menu-button" onclick="app.startExercise('future')">Future Simple</button>
+            <button class="menu-button" onclick="app.startExercise('presentPerfect')">Present Perfect</button>
+            <button class="menu-button" onclick="app.startExercise('pastPerfect')">Past Perfect</button>
+            <button class="back-button" onclick="app.showExercises()">Back to Categories</button>
+        </div>
+        
+        <!-- Continuous Tenses Menu -->
+        <div id="continuousMenu" class="screen hidden">
+            <h2>Continuous Tenses</h2>
+            <button class="menu-button" onclick="app.startExercise('presentContinuous')">Present Continuous</button>
+            <button class="menu-button" onclick="app.startExercise('pastContinuous')">Past Continuous</button>
+            <button class="menu-button" onclick="app.startExercise('futureContinuous')">Future Continuous</button>
+            <button class="menu-button" onclick="app.startExercise('presentPerfectContinuous')">Present Perfect Continuous</button>
+            <button class="menu-button" onclick="app.startExercise('pastPerfectContinuous')">Past Perfect Continuous</button>
+            <button class="back-button" onclick="app.showExercises()">Back to Categories</button>
         </div>
 
-        <!-- Present Simple Exercise -->
-        <div id="presentSimple" class="screen hidden">
-            <h2>Present Simple</h2>
-            <p class="exercise-title">Practice changing subjects while keeping the same verb</p>
+        <!-- Universal Exercise Template -->
+        <div id="exerciseTemplate" class="screen exercise-screen hidden">
+            <h2 id="exerciseTitle">Exercise Title</h2>
+            <p class="exercise-title" id="exerciseSubtitle">Next - поменять подлежащее<br>
+            Change the Word - поменять глагол<br>
+            Клик на примерах, чтобы скрыть всё, кроме утверждения</p>
             
-            <div class="verb-info" id="currentVerb">Current verb: go</div>
-            <button class="rules-button" onclick="showRules('present')">📚 Rules</button>
+            <div class="verb-info" id="currentVerbInfo">Current verb: go</div>
+            <button class="rules-button" onclick="app.showRules()">📚 Rules</button>
             
-            <div class="exercise-container">
+            <div class="exercise-container" onclick="app.toggleExamples()">
                 <div id="sentenceDisplay">
                     <div class="sentence" id="sentence1">Loading...</div>
                     <div class="sentence" id="sentence2">Loading...</div>
@@ -525,151 +616,28 @@
 
             <div class="navigation-buttons">
                 <div class="button-row">
-                    <button class="nav-button" id="backBtn" onclick="previousSubject()">Back</button>
-                    <button class="nav-button next-button" id="nextBtn" onclick="nextSubject()">Next</button>
+                    <button class="nav-button" onclick="app.previousSubject()">◀ Back</button>
+                    <button class="nav-button next-button" onclick="app.nextSubject()">Next ▶</button>
                 </div>
                 <div class="button-row">
-                    <button class="nav-button" onclick="playAudioPresent()">🔊 Play</button>
-                    <button class="nav-button" id="changeWordBtn" onclick="changeVerb()">Change the Word</button>
+                    <button class="nav-button" onclick="app.playAudio()">🔊 Play</button>
+                    <button class="nav-button" onclick="app.changeVerb()">Change the Word</button>
                 </div>
-                <button class="back-button" onclick="showExercises()">Back to Exercises</button>
-            </div>
-        </div>
-
-        <!-- Future Simple Exercise -->
-        <div id="futureSimple" class="screen hidden">
-            <h2>Future Simple</h2>
-            <p class="exercise-title">Practice changing subjects with future tense</p>
-            
-            <div class="verb-info" id="currentVerbFuture">Current verb: go</div>
-            <button class="rules-button" onclick="showRules('future')">📚 Rules</button>
-            
-            <div class="exercise-container">
-                <div id="sentenceDisplayFuture">
-                    <div class="sentence" id="sentenceFuture1">Loading...</div>
-                    <div class="sentence" id="sentenceFuture2">Loading...</div>
-                    <div class="sentence" id="sentenceFuture3">Loading...</div>
-                    <div class="sentence" id="sentenceFuture4">Loading...</div>
-                </div>
-            </div>
-
-            <div id="errorMessageFuture" class="error-message hidden"></div>
-
-            <div class="navigation-buttons">
-                <div class="button-row">
-                    <button class="nav-button" id="backBtnFuture" onclick="previousSubjectFuture()">Back</button>
-                    <button class="nav-button next-button" id="nextBtnFuture" onclick="nextSubjectFuture()">Next</button>
-                </div>
-                <div class="button-row">
-                    <button class="nav-button" onclick="playAudioFuture()">🔊 Play</button>
-                    <button class="nav-button" id="changeWordBtnFuture" onclick="changeVerbFuture()">Change the Word</button>
-                </div>
-                <button class="back-button" onclick="showExercises()">Back to Exercises</button>
-            </div>
-        </div>
-
-        <!-- Past Simple Exercise -->
-        <div id="pastSimple" class="screen hidden">
-            <h2>Past Simple</h2>
-            <p class="exercise-title">Practice changing subjects with past tense</p>
-            
-            <div class="verb-info" id="currentVerbPast">Current verb: go</div>
-            <button class="rules-button" onclick="showRules('past')">📚 Rules</button>
-            
-            <div class="exercise-container">
-                <div id="sentenceDisplayPast">
-                    <div class="sentence" id="sentencePast1">Loading...</div>
-                    <div class="sentence" id="sentencePast2">Loading...</div>
-                    <div class="sentence" id="sentencePast3">Loading...</div>
-                    <div class="sentence" id="sentencePast4">Loading...</div>
-                </div>
-            </div>
-
-            <div id="errorMessagePast" class="error-message hidden"></div>
-
-            <div class="navigation-buttons">
-                <div class="button-row">
-                    <button class="nav-button" id="backBtnPast" onclick="previousSubjectPast()">Back</button>
-                    <button class="nav-button next-button" id="nextBtnPast" onclick="nextSubjectPast()">Next</button>
-                </div>
-                <div class="button-row">
-                    <button class="nav-button" onclick="playAudioPast()">🔊 Play</button>
-                    <button class="nav-button" id="changeWordBtnPast" onclick="changeVerbPast()">Change the Word</button>
-                </div>
-                <button class="back-button" onclick="showExercises()">Back to Exercises</button>
-            </div>
-        </div>
-
-        <!-- Present Perfect Exercise -->
-        <div id="presentPerfect" class="screen hidden">
-            <h2>Present Perfect</h2>
-            <p class="exercise-title">Practice changing subjects with present perfect tense</p>
-            
-            <div class="verb-info" id="currentVerbPresentPerfect">Current verb: go</div>
-            <button class="rules-button" onclick="showRules('presentPerfect')">📚 Rules</button>
-            
-            <div class="exercise-container">
-                <div id="sentenceDisplayPresentPerfect">
-                    <div class="sentence" id="sentencePresentPerfect1">Loading...</div>
-                    <div class="sentence" id="sentencePresentPerfect2">Loading...</div>
-                    <div class="sentence" id="sentencePresentPerfect3">Loading...</div>
-                    <div class="sentence" id="sentencePresentPerfect4">Loading...</div>
-                </div>
-            </div>
-
-            <div id="errorMessagePresentPerfect" class="error-message hidden"></div>
-
-            <div class="navigation-buttons">
-                <div class="button-row">
-                    <button class="nav-button" id="backBtnPresentPerfect" onclick="previousSubjectPresentPerfect()">Back</button>
-                    <button class="nav-button next-button" id="nextBtnPresentPerfect" onclick="nextSubjectPresentPerfect()">Next</button>
-                </div>
-                <div class="button-row">
-                    <button class="nav-button" onclick="playAudioPresentPerfect()">🔊 Play</button>
-                    <button class="nav-button" id="changeWordBtnPresentPerfect" onclick="changeVerbPresentPerfect()">Change the Word</button>
-                </div>
-                <button class="back-button" onclick="showExercises()">Back to Exercises</button>
-            </div>
-        </div>
-
-        <!-- Past Perfect Exercise -->
-        <div id="pastPerfect" class="screen hidden">
-            <h2>Past Perfect</h2>
-            <p class="exercise-title">Practice changing subjects with past perfect tense</p>
-            
-            <div class="verb-info" id="currentVerbPastPerfect">Current verb: go</div>
-            <button class="rules-button" onclick="showRules('pastPerfect')">📚 Rules</button>
-            
-            <div class="exercise-container">
-                <div id="sentenceDisplayPastPerfect">
-                    <div class="sentence" id="sentencePastPerfect1">Loading...</div>
-                    <div class="sentence" id="sentencePastPerfect2">Loading...</div>
-                    <div class="sentence" id="sentencePastPerfect3">Loading...</div>
-                    <div class="sentence" id="sentencePastPerfect4">Loading...</div>
-                </div>
-            </div>
-
-            <div id="errorMessagePastPerfect" class="error-message hidden"></div>
-
-            <div class="navigation-buttons">
-                <div class="button-row">
-                    <button class="nav-button" id="backBtnPastPerfect" onclick="previousSubjectPastPerfect()">Back</button>
-                    <button class="nav-button next-button" id="nextBtnPastPerfect" onclick="nextSubjectPastPerfect()">Next</button>
-                </div>
-                <div class="button-row">
-                    <button class="nav-button" onclick="playAudioPastPerfect()">🔊 Play</button>
-                    <button class="nav-button" id="changeWordBtnPastPerfect" onclick="changeVerbPastPerfect()">Change the Word</button>
-                </div>
-                <button class="back-button" onclick="showExercises()">Back to Exercises</button>
+                <button class="back-button" id="exerciseBackButton" onclick="app.goBack()">Tenses</button>
             </div>
         </div>
 
         <!-- Test Yourself -->
         <div id="testYourself" class="screen hidden">
             <h2>Test Yourself</h2>
-            <p class="exercise-title">Переведи предложение и сделай из него отрицание, вопрос и wh-вопрос. Клик, чтобы проверить себя.</p>
+            <p class="exercise-title" id="testInstructions" onclick="app.toggleInstructions()" style="cursor: pointer;" title="Click to toggle instructions">Составь в заданном времени:<br>
+            - Утверждение<br>
+            - Отрицание<br>
+            - Вопрос<br>
+            - Wh-вопрос<br>
+            Клик, чтобы проверить себя</p>
             
-            <div class="exercise-container" id="testContainer" onclick="revealNext()">
+            <div class="exercise-container" id="testContainer" onclick="app.revealNext()">
                 <div class="test-item">
                     <div class="russian" id="russianSentence">Loading...</div>
                     <div class="english hidden" id="englishPositive"></div>
@@ -682,2001 +650,166 @@
             <div id="testError" class="error-message hidden"></div>
             
             <div class="navigation-buttons">
-                <button class="nav-button" onclick="generateNewTest()">New Example</button>
-                <button class="back-button" onclick="showMainMenu()">Back to Main Menu</button>
+                <button class="nav-button" onclick="app.generateNewTest()">New Example</button>
+                <button class="back-button" onclick="app.showMainMenu()">Main Menu</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Russian infinitive forms for all verbs
-        const verbInfinitives = {
-            'be': 'быть',
-            'beat': 'бить',
-            'become': 'становиться',
-            'begin': 'начинать',
-            'break': 'ломать',
-            'bring': 'приносить',
-            'build': 'строить',
-            'buy': 'покупать',
-            'catch': 'ловить',
-            'choose': 'выбирать',
-            'come': 'приходить',
-            'cost': 'стоить',
-            'do': 'делать',
-            'draw': 'рисовать',
-            'dream': 'мечтать',
-            'drink': 'пить',
-            'drive': 'водить, везти',
-            'eat': 'есть',
-            'fall': 'падать',
-            'feel': 'чувствовать',
-            'find': 'находить',
-            'fix': 'чинить',
-            'fly': 'летать',
-            'get': 'получать',
-            'give': 'давать',
-            'go': 'идти, ходить',
-            'grow': 'расти',
-            'have': 'иметь',
-            'hear': 'слышать',
-            'know': 'знать',
-            'learn': 'учиться',
-            'leave': 'оставлять, уходить',
-            'lie': 'лежать',
-            'make': 'делать, создавать',
-            'meet': 'встречать',
-            'play': 'играть',
-            'put': 'класть',
-            'read': 'читать',
-            'run': 'бегать',
-            'say': 'говорить',
-            'see': 'видеть',
-            'seek': 'искать',
-            'show': 'показывать',
-            'sing': 'петь',
-            'sit': 'сидеть',
-            'sleep': 'спать',
-            'speak': 'говорить',
-            'stand': 'стоять',
-            'study': 'учиться, изучать',
-            'swim': 'плавать',
-            'take': 'брать',
-            'teach': 'учить, преподавать',
-            'tell': 'рассказывать',
-            'think': 'думать',
-            'throw': 'бросать',
-            'understand': 'понимать',
-            'work': 'работать',
-            'write': 'писать',
-            'cry': 'плакать'
-        };
-
-        // Three forms of verbs (infinitive - past simple - past participle)
-        const verbForms = {
-            'be': 'be-was/were-been',
-            'beat': 'beat-beat-beaten',
-            'become': 'become-became-become',
-            'begin': 'begin-began-begun',
-            'break': 'break-broke-broken',
-            'bring': 'bring-brought-brought',
-            'build': 'build-built-built',
-            'buy': 'buy-bought-bought',
-            'catch': 'catch-caught-caught',
-            'choose': 'choose-chose-chosen',
-            'come': 'come-came-come',
-            'cost': 'cost-cost-cost',
-            'do': 'do-did-done',
-            'draw': 'draw-drew-drawn',
-            'dream': 'dream-dreamt-dreamt',
-            'drink': 'drink-drank-drunk',
-            'drive': 'drive-drove-driven',
-            'eat': 'eat-ate-eaten',
-            'fall': 'fall-fell-fallen',
-            'feel': 'feel-felt-felt',
-            'find': 'find-found-found',
-            'fix': 'fix-fixed-fixed',
-            'fly': 'fly-flew-flown',
-            'get': 'get-got-got',
-            'give': 'give-gave-given',
-            'go': 'go-went-gone',
-            'grow': 'grow-grew-grown',
-            'have': 'have-had-had',
-            'hear': 'hear-heard-heard',
-            'know': 'know-knew-known',
-            'learn': 'learn-learnt-learnt',
-            'leave': 'leave-left-left',
-            'lie': 'lie-lay-lain',
-            'make': 'make-made-made',
-            'meet': 'meet-met-met',
-            'play': 'play-played-played',
-            'put': 'put-put-put',
-            'read': 'read-read-read',
-            'run': 'run-ran-run',
-            'say': 'say-said-said',
-            'see': 'see-saw-seen',
-            'seek': 'seek-sought-sought',
-            'show': 'show-showed-shown',
-            'sing': 'sing-sang-sung',
-            'sit': 'sit-sat-sat',
-            'sleep': 'sleep-slept-slept',
-            'speak': 'speak-spoke-spoken',
-            'stand': 'stand-stood-stood',
-            'study': 'study-studied-studied',
-            'swim': 'swim-swam-swum',
-            'take': 'take-took-taken',
-            'teach': 'teach-taught-taught',
-            'tell': 'tell-told-told',
-            'think': 'think-thought-thought',
-            'throw': 'throw-threw-thrown',
-            'understand': 'understand-understood-understood',
-            'work': 'work-worked-worked',
-            'write': 'write-wrote-written',
-            'cry': 'cry-cried-cried'
-        };
-
-        // Tense rules in both languages
-        const tenseRules = {
-            present: {
-                english: "Used for habits, routines, general truths, and scheduled events. It describes actions that happen regularly or are always true.",
-                russian: "Используется для описания привычек, рутинных действий, общих истин и запланированных событий. Описывает действия, которые происходят регулярно или всегда верны."
+        // Application State Manager
+        const app = {
+            // Current state
+            currentTense: null,
+            currentVerb: 'go',
+            currentSubjectIndex: 0,
+            isLoading: false,
+            audioEnabled: true,
+            currentRulesLanguage: 'russian',
+            examplesHidden: false,
+            
+            // Test state
+            revealStage: 0,
+            currentTestData: null,
+            instructionsCollapsed: false,
+            
+            // Navigation history for back button
+            navigationHistory: [],
+            
+            // Initialize
+            init() {
+                this.showScreen('welcomeScreen');
             },
-            past: {
-                english: "Used for completed actions in the past, past habits, and actions with a specific time. It describes things that are finished, often with a specific time or date.",
-                russian: "Используется для описания завершенных действий в прошлом, прошлых привычек и действий с указанием конкретного времени в прошлом. Описывает завершенные действия, часто с указанием конкретного времени или даты. События и факты из прошлого, следующие один за другим."
+            
+            // Toggle examples visibility
+            toggleExamples() {
+                this.examplesHidden = !this.examplesHidden;
+                const sentences = ['sentence2', 'sentence3', 'sentence4'];
+                
+                sentences.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        if (this.examplesHidden) {
+                            element.style.display = 'none';
+                        } else {
+                            element.style.display = 'block';
+                        }
+                    }
+                });
             },
-            future: {
-                english: "Used for predictions, spontaneous decisions, promises, and scheduled events. It describes actions that will happen in the future, whether planned or not.",
-                russian: "Используется для предсказаний, обещаний и запланированных событий. Описывает действия, которые произойдут в будущем, запланированные или нет."
-            },
-            presentPerfect: {
-                english: "Used for actions that started in the past and continue to the present, actions at an unspecified time, actions connected to the present, and recent actions. It shows a link between the past and the present.",
-                russian: "Используется для действий, начавшихся в прошлом и продолжающихся в настоящем (я прожил здесь 10 лет), обозначения опыта/прецедента (я бывал в Калифорнии) и результат действий на данный момент (я сделал работу). Показывает связь между прошлым и настоящим."
-            },
-            pastPerfect: {
-                english: "Used for actions that happened before another action in the past or before a specific time in the past, and in reported speech. It helps sequence events in the past.",
-                russian: "Используется для действий, произошедших до другого действия в прошлом или до определенного времени в прошлом, а также в косвенной речи. Помогает упорядочить события в прошлом."
-            }
-        };
-
-        // Comprehensive Verb Dictionary with added Present Perfect and Past Perfect
-        const verbDictionary = {
-            // BE verb
-            'be': {
-                present: {
-                    'I': {
-                        positive: 'I am',
-                        negative: 'I am not',
-                        question: 'Am I?',
-                        whQuestion: 'Who am I?',
-                        russian: 'Я есть'
-                    },
-                    'you': {
-                        positive: 'you are',
-                        negative: 'you are not',
-                        question: 'Are you?',
-                        whQuestion: 'Who are you?',
-                        russian: 'ты есть'
-                    },
-                    'he': {
-                        positive: 'he is',
-                        negative: 'he is not',
-                        question: 'Is he?',
-                        whQuestion: 'Who is he?',
-                        russian: 'он есть'
-                    },
-                    'she': {
-                        positive: 'she is',
-                        negative: 'she is not',
-                        question: 'Is she?',
-                        whQuestion: 'Who is she?',
-                        russian: 'она есть'
-                    },
-                    'it': {
-                        positive: 'it is',
-                        negative: 'it is not',
-                        question: 'Is it?',
-                        whQuestion: 'Who is it?',
-                        russian: 'оно есть'
-                    },
-                    'we': {
-                        positive: 'we are',
-                        negative: 'we are not',
-                        question: 'Are we?',
-                        whQuestion: 'Who are we?',
-                        russian: 'мы есть'
-                    },
-                    'they': {
-                        positive: 'they are',
-                        negative: 'they are not',
-                        question: 'Are they?',
-                        whQuestion: 'Who are they?',
-                        russian: 'они есть'
-                    }
-                },
-                past: {
-                    'I': {
-                        positive: 'I was',
-                        negative: 'I was not',
-                        question: 'Was I?',
-                        whQuestion: 'Who was I?',
-                        russian: 'Я был/была'
-                    },
-                    'you': {
-                        positive: 'you were',
-                        negative: 'you were not',
-                        question: 'Were you?',
-                        whQuestion: 'Who were you?',
-                        russian: 'ты был/была'
-                    },
-                    'he': {
-                        positive: 'he was',
-                        negative: 'he was not',
-                        question: 'Was he?',
-                        whQuestion: 'Who was he?',
-                        russian: 'он был'
-                    },
-                    'she': {
-                        positive: 'she was',
-                        negative: 'she was not',
-                        question: 'Was she?',
-                        whQuestion: 'Who was she?',
-                        russian: 'она была'
-                    },
-                    'it': {
-                        positive: 'it was',
-                        negative: 'it was not',
-                        question: 'Was it?',
-                        whQuestion: 'Who was it?',
-                        russian: 'оно было'
-                    },
-                    'we': {
-                        positive: 'we were',
-                        negative: 'we were not',
-                        question: 'Were we?',
-                        whQuestion: 'Who were we?',
-                        russian: 'мы были'
-                    },
-                    'they': {
-                        positive: 'they were',
-                        negative: 'they were not',
-                        question: 'Were they?',
-                        whQuestion: 'Who were they?',
-                        russian: 'они были'
-                    }
-                },
-                future: {
-                    'I': {
-                        positive: 'I will be',
-                        negative: 'I will not be',
-                        question: 'Will I be?',
-                        whQuestion: 'Who will I be?',
-                        russian: 'Я буду'
-                    },
-                    'you': {
-                        positive: 'you will be',
-                        negative: 'you will not be',
-                        question: 'Will you be?',
-                        whQuestion: 'Who will you be?',
-                        russian: 'ты будешь'
-                    },
-                    'he': {
-                        positive: 'he will be',
-                        negative: 'he will not be',
-                        question: 'Will he be?',
-                        whQuestion: 'Who will he be?',
-                        russian: 'он будет'
-                    },
-                    'she': {
-                        positive: 'she will be',
-                        negative: 'she will not be',
-                        question: 'Will she be?',
-                        whQuestion: 'Who will she be?',
-                        russian: 'она будет'
-                    },
-                    'it': {
-                        positive: 'it will be',
-                        negative: 'it will not be',
-                        question: 'Will it be?',
-                        whQuestion: 'Who will it be?',
-                        russian: 'оно будет'
-                    },
-                    'we': {
-                        positive: 'we will be',
-                        negative: 'we will not be',
-                        question: 'Will we be?',
-                        whQuestion: 'Who will we be?',
-                        russian: 'мы будем'
-                    },
-                    'they': {
-                        positive: 'they will be',
-                        negative: 'they will not be',
-                        question: 'Will they be?',
-                        whQuestion: 'Who will they be?',
-                        russian: 'они будут'
-                    }
-                },
-                presentPerfect: {
-                    'I': {
-                        positive: 'I have been',
-                        negative: "I haven't been",
-                        question: 'Have I been?',
-                        whQuestion: 'Where have I been?',
-                        russian: 'Я был/была'
-                    },
-                    'you': {
-                        positive: 'you have been',
-                        negative: "you haven't been",
-                        question: 'Have you been?',
-                        whQuestion: 'Where have you been?',
-                        russian: 'ты был/была'
-                    },
-                    'he': {
-                        positive: 'he has been',
-                        negative: "he hasn't been",
-                        question: 'Has he been?',
-                        whQuestion: 'Where has he been?',
-                        russian: 'он был'
-                    },
-                    'she': {
-                        positive: 'she has been',
-                        negative: "she hasn't been",
-                        question: 'Has she been?',
-                        whQuestion: 'Where has she been?',
-                        russian: 'она была'
-                    },
-                    'it': {
-                        positive: 'it has been',
-                        negative: "it hasn't been",
-                        question: 'Has it been?',
-                        whQuestion: 'Where has it been?',
-                        russian: 'оно было'
-                    },
-                    'we': {
-                        positive: 'we have been',
-                        negative: "we haven't been",
-                        question: 'Have we been?',
-                        whQuestion: 'Where have we been?',
-                        russian: 'мы были'
-                    },
-                    'they': {
-                        positive: 'they have been',
-                        negative: "they haven't been",
-                        question: 'Have they been?',
-                        whQuestion: 'Where have they been?',
-                        russian: 'они были'
-                    }
-                },
-                pastPerfect: {
-                    'I': {
-                        positive: 'I had been',
-                        negative: "I hadn't been",
-                        question: 'Had I been?',
-                        whQuestion: 'Where had I been?',
-                        russian: 'Я был/была (до того)'
-                    },
-                    'you': {
-                        positive: 'you had been',
-                        negative: "you hadn't been",
-                        question: 'Had you been?',
-                        whQuestion: 'Where had you been?',
-                        russian: 'ты был/была (до того)'
-                    },
-                    'he': {
-                        positive: 'he had been',
-                        negative: "he hadn't been",
-                        question: 'Had he been?',
-                        whQuestion: 'Where had he been?',
-                        russian: 'он был (до того)'
-                    },
-                    'she': {
-                        positive: 'she had been',
-                        negative: "she hadn't been",
-                        question: 'Had she been?',
-                        whQuestion: 'Where had she been?',
-                        russian: 'она была (до того)'
-                    },
-                    'it': {
-                        positive: 'it had been',
-                        negative: "it hadn't been",
-                        question: 'Had it been?',
-                        whQuestion: 'Where had it been?',
-                        russian: 'оно было (до того)'
-                    },
-                    'we': {
-                        positive: 'we had been',
-                        negative: "we hadn't been",
-                        question: 'Had we been?',
-                        whQuestion: 'Where had we been?',
-                        russian: 'мы были (до того)'
-                    },
-                    'they': {
-                        positive: 'they had been',
-                        negative: "they hadn't been",
-                        question: 'Had they been?',
-                        whQuestion: 'Where had they been?',
-                        russian: 'они были (до того)'
-                    }
+            
+            // Apply hidden state
+            applyExamplesVisibility() {
+                if (this.examplesHidden) {
+                    const sentences = ['sentence2', 'sentence3', 'sentence4'];
+                    sentences.forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.style.display = 'none';
+                        }
+                    });
                 }
             },
             
-            // GO verb
-            'go': {
-                present: {
-                    'I': {
-                        positive: 'I go',
-                        negative: "I don't go",
-                        question: 'Do I go?',
-                        whQuestion: 'Where do I go?',
-                        russian: 'Я иду'
-                    },
-                    'you': {
-                        positive: 'you go',
-                        negative: "you don't go",
-                        question: 'Do you go?',
-                        whQuestion: 'Where do you go?',
-                        russian: 'ты идёшь'
-                    },
-                    'he': {
-                        positive: 'he goes',
-                        negative: "he doesn't go",
-                        question: 'Does he go?',
-                        whQuestion: 'Where does he go?',
-                        russian: 'он идёт'
-                    },
-                    'she': {
-                        positive: 'she goes',
-                        negative: "she doesn't go",
-                        question: 'Does she go?',
-                        whQuestion: 'Where does she go?',
-                        russian: 'она идёт'
-                    },
-                    'it': {
-                        positive: 'it goes',
-                        negative: "it doesn't go",
-                        question: 'Does it go?',
-                        whQuestion: 'Where does it go?',
-                        russian: 'оно идёт'
-                    },
-                    'we': {
-                        positive: 'we go',
-                        negative: "we don't go",
-                        question: 'Do we go?',
-                        whQuestion: 'Where do we go?',
-                        russian: 'мы идём'
-                    },
-                    'they': {
-                        positive: 'they go',
-                        negative: "they don't go",
-                        question: 'Do they go?',
-                        whQuestion: 'Where do they go?',
-                        russian: 'они идут'
-                    }
-                },
-                past: {
-                    'I': {
-                        positive: 'I went',
-                        negative: "I didn't go",
-                        question: 'Did I go?',
-                        whQuestion: 'Where did I go?',
-                        russian: 'Я пошёл/пошла'
-                    },
-                    'you': {
-                        positive: 'you went',
-                        negative: "you didn't go",
-                        question: 'Did you go?',
-                        whQuestion: 'Where did you go?',
-                        russian: 'ты пошёл/пошла'
-                    },
-                    'he': {
-                        positive: 'he went',
-                        negative: "he didn't go",
-                        question: 'Did he go?',
-                        whQuestion: 'Where did he go?',
-                        russian: 'он пошёл'
-                    },
-                    'she': {
-                        positive: 'she went',
-                        negative: "she didn't go",
-                        question: 'Did she go?',
-                        whQuestion: 'Where did she go?',
-                        russian: 'она пошла'
-                    },
-                    'it': {
-                        positive: 'it went',
-                        negative: "it didn't go",
-                        question: 'Did it go?',
-                        whQuestion: 'Where did it go?',
-                        russian: 'оно пошло'
-                    },
-                    'we': {
-                        positive: 'we went',
-                        negative: "we didn't go",
-                        question: 'Did we go?',
-                        whQuestion: 'Where did we go?',
-                        russian: 'мы пошли'
-                    },
-                    'they': {
-                        positive: 'they went',
-                        negative: "they didn't go",
-                        question: 'Did they go?',
-                        whQuestion: 'Where did they go?',
-                        russian: 'они пошли'
-                    }
-                },
-                future: {
-                    'I': {
-                        positive: 'I will go',
-                        negative: "I won't go",
-                        question: 'Will I go?',
-                        whQuestion: 'Where will I go?',
-                        russian: 'Я пойду'
-                    },
-                    'you': {
-                        positive: 'you will go',
-                        negative: "you won't go",
-                        question: 'Will you go?',
-                        whQuestion: 'Where will you go?',
-                        russian: 'ты пойдёшь'
-                    },
-                    'he': {
-                        positive: 'he will go',
-                        negative: "he won't go",
-                        question: 'Will he go?',
-                        whQuestion: 'Where will he go?',
-                        russian: 'он пойдёт'
-                    },
-                    'she': {
-                        positive: 'she will go',
-                        negative: "she won't go",
-                        question: 'Will she go?',
-                        whQuestion: 'Where will she go?',
-                        russian: 'она пойдёт'
-                    },
-                    'it': {
-                        positive: 'it will go',
-                        negative: "it won't go",
-                        question: 'Will it go?',
-                        whQuestion: 'Where will it go?',
-                        russian: 'оно пойдёт'
-                    },
-                    'we': {
-                        positive: 'we will go',
-                        negative: "we won't go",
-                        question: 'Will we go?',
-                        whQuestion: 'Where will we go?',
-                        russian: 'мы пойдём'
-                    },
-                    'they': {
-                        positive: 'they will go',
-                        negative: "they won't go",
-                        question: 'Will they go?',
-                        whQuestion: 'Where will they go?',
-                        russian: 'они пойдут'
-                    }
-                },
-                presentPerfect: {
-                    'I': {
-                        positive: 'I have gone',
-                        negative: "I haven't gone",
-                        question: 'Have I gone?',
-                        whQuestion: 'Where have I gone?',
-                        russian: 'Я ушёл/ушла'
-                    },
-                    'you': {
-                        positive: 'you have gone',
-                        negative: "you haven't gone",
-                        question: 'Have you gone?',
-                        whQuestion: 'Where have you gone?',
-                        russian: 'ты ушёл/ушла'
-                    },
-                    'he': {
-                        positive: 'he has gone',
-                        negative: "he hasn't gone",
-                        question: 'Has he gone?',
-                        whQuestion: 'Where has he gone?',
-                        russian: 'он ушёл'
-                    },
-                    'she': {
-                        positive: 'she has gone',
-                        negative: "she hasn't gone",
-                        question: 'Has she gone?',
-                        whQuestion: 'Where has she gone?',
-                        russian: 'она ушла'
-                    },
-                    'it': {
-                        positive: 'it has gone',
-                        negative: "it hasn't gone",
-                        question: 'Has it gone?',
-                        whQuestion: 'Where has it gone?',
-                        russian: 'оно ушло'
-                    },
-                    'we': {
-                        positive: 'we have gone',
-                        negative: "we haven't gone",
-                        question: 'Have we gone?',
-                        whQuestion: 'Where have we gone?',
-                        russian: 'мы ушли'
-                    },
-                    'they': {
-                        positive: 'they have gone',
-                        negative: "they haven't gone",
-                        question: 'Have they gone?',
-                        whQuestion: 'Where have they gone?',
-                        russian: 'они ушли'
-                    }
-                },
-                pastPerfect: {
-                    'I': {
-                        positive: 'I had gone',
-                        negative: "I hadn't gone",
-                        question: 'Had I gone?',
-                        whQuestion: 'Where had I gone?',
-                        russian: 'Я ушёл/ушла (до того)'
-                    },
-                    'you': {
-                        positive: 'you had gone',
-                        negative: "you hadn't gone",
-                        question: 'Had you gone?',
-                        whQuestion: 'Where had you gone?',
-                        russian: 'ты ушёл/ушла (до того)'
-                    },
-                    'he': {
-                        positive: 'he had gone',
-                        negative: "he hadn't gone",
-                        question: 'Had he gone?',
-                        whQuestion: 'Where had he gone?',
-                        russian: 'он ушёл (до того)'
-                    },
-                    'she': {
-                        positive: 'she had gone',
-                        negative: "she hadn't gone",
-                        question: 'Had she gone?',
-                        whQuestion: 'Where had she gone?',
-                        russian: 'она ушла (до того)'
-                    },
-                    'it': {
-                        positive: 'it had gone',
-                        negative: "it hadn't gone",
-                        question: 'Had it gone?',
-                        whQuestion: 'Where had it gone?',
-                        russian: 'оно ушло (до того)'
-                    },
-                    'we': {
-                        positive: 'we had gone',
-                        negative: "we hadn't gone",
-                        question: 'Had we gone?',
-                        whQuestion: 'Where had we gone?',
-                        russian: 'мы ушли (до того)'
-                    },
-                    'they': {
-                        positive: 'they had gone',
-                        negative: "they hadn't gone",
-                        question: 'Had they gone?',
-                        whQuestion: 'Where had they gone?',
-                        russian: 'они ушли (до того)'
-                    }
+            // Screen management
+            showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.add('hidden');
+                });
+                document.getElementById(screenId).classList.remove('hidden');
+            },
+            
+            showMainMenu() {
+                this.navigationHistory = ['mainMenu'];
+                this.showScreen('mainMenu');
+            },
+            
+            showExercises() {
+                this.navigationHistory.push('exercisesMenu');
+                this.showScreen('exercisesMenu');
+            },
+            
+            showSimpleMenu() {
+                this.navigationHistory.push('simpleMenu');
+                this.showScreen('simpleMenu');
+            },
+            
+            showContinuousMenu() {
+                this.navigationHistory.push('continuousMenu');
+                this.showScreen('continuousMenu');
+            },
+            
+            showTestYourself() {
+                this.navigationHistory.push('testYourself');
+                this.showScreen('testYourself');
+                this.instructionsCollapsed = false;
+                const instructions = document.getElementById('testInstructions');
+                if (instructions) {
+                    instructions.innerHTML = `Составь в заданном времени:<br>
+                    - Утверждение<br>
+                    - Отрицание<br>
+                    - Вопрос<br>
+                    - Wh-вопрос<br>
+                    Клик, чтобы проверить себя`;
+                }
+                this.generateNewTest();
+            },
+            
+            goBack() {
+                if (this.navigationHistory.length > 1) {
+                    this.navigationHistory.pop();
+                    const previousScreen = this.navigationHistory[this.navigationHistory.length - 1];
+                    this.showScreen(previousScreen);
                 }
             },
-
-            // DO verb
-            'do': {
-                present: {
-                    'I': {
-                        positive: 'I do',
-                        negative: "I don't do",
-                        question: 'Do I do?',
-                        whQuestion: 'What do I do?',
-                        russian: 'Я делаю'
-                    },
-                    'you': {
-                        positive: 'you do',
-                        negative: "you don't do",
-                        question: 'Do you do?',
-                        whQuestion: 'What do you do?',
-                        russian: 'ты делаешь'
-                    },
-                    'he': {
-                        positive: 'he does',
-                        negative: "he doesn't do",
-                        question: 'Does he do?',
-                        whQuestion: 'What does he do?',
-                        russian: 'он делает'
-                    },
-                    'she': {
-                        positive: 'she does',
-                        negative: "she doesn't do",
-                        question: 'Does she do?',
-                        whQuestion: 'What does she do?',
-                        russian: 'она делает'
-                    },
-                    'it': {
-                        positive: 'it does',
-                        negative: "it doesn't do",
-                        question: 'Does it do?',
-                        whQuestion: 'What does it do?',
-                        russian: 'оно делает'
-                    },
-                    'we': {
-                        positive: 'we do',
-                        negative: "we don't do",
-                        question: 'Do we do?',
-                        whQuestion: 'What do we do?',
-                        russian: 'мы делаем'
-                    },
-                    'they': {
-                        positive: 'they do',
-                        negative: "they don't do",
-                        question: 'Do they do?',
-                        whQuestion: 'What do they do?',
-                        russian: 'они делают'
-                    }
-                },
-                past: {
-                    'I': {
-                        positive: 'I did',
-                        negative: "I didn't do",
-                        question: 'Did I do?',
-                        whQuestion: 'What did I do?',
-                        russian: 'Я сделал/сделала'
-                    },
-                    'you': {
-                        positive: 'you did',
-                        negative: "you didn't do",
-                        question: 'Did you do?',
-                        whQuestion: 'What did you do?',
-                        russian: 'ты сделал/сделала'
-                    },
-                    'he': {
-                        positive: 'he did',
-                        negative: "he didn't do",
-                        question: 'Did he do?',
-                        whQuestion: 'What did he do?',
-                        russian: 'он сделал'
-                    },
-                    'she': {
-                        positive: 'she did',
-                        negative: "she didn't do",
-                        question: 'Did she do?',
-                        whQuestion: 'What did she do?',
-                        russian: 'она сделала'
-                    },
-                    'it': {
-                        positive: 'it did',
-                        negative: "it didn't do",
-                        question: 'Did it do?',
-                        whQuestion: 'What did it do?',
-                        russian: 'оно сделало'
-                    },
-                    'we': {
-                        positive: 'we did',
-                        negative: "we didn't do",
-                        question: 'Did we do?',
-                        whQuestion: 'What did we do?',
-                        russian: 'мы сделали'
-                    },
-                    'they': {
-                        positive: 'they did',
-                        negative: "they didn't do",
-                        question: 'Did they do?',
-                        whQuestion: 'What did they do?',
-                        russian: 'они сделали'
-                    }
-                },
-                future: {
-                    'I': {
-                        positive: 'I will do',
-                        negative: "I won't do",
-                        question: 'Will I do?',
-                        whQuestion: 'What will I do?',
-                        russian: 'Я сделаю'
-                    },
-                    'you': {
-                        positive: 'you will do',
-                        negative: "you won't do",
-                        question: 'Will you do?',
-                        whQuestion: 'What will you do?',
-                        russian: 'ты сделаешь'
-                    },
-                    'he': {
-                        positive: 'he will do',
-                        negative: "he won't do",
-                        question: 'Will he do?',
-                        whQuestion: 'What will he do?',
-                        russian: 'он сделает'
-                    },
-                    'she': {
-                        positive: 'she will do',
-                        negative: "she won't do",
-                        question: 'Will she do?',
-                        whQuestion: 'What will she do?',
-                        russian: 'она сделает'
-                    },
-                    'it': {
-                        positive: 'it will do',
-                        negative: "it won't do",
-                        question: 'Will it do?',
-                        whQuestion: 'What will it do?',
-                        russian: 'оно сделает'
-                    },
-                    'we': {
-                        positive: 'we will do',
-                        negative: "we won't do",
-                        question: 'Will we do?',
-                        whQuestion: 'What will we do?',
-                        russian: 'мы сделаем'
-                    },
-                    'they': {
-                        positive: 'they will do',
-                        negative: "they won't do",
-                        question: 'Will they do?',
-                        whQuestion: 'What will they do?',
-                        russian: 'они сделают'
-                    }
-                },
-                presentPerfect: {
-                    'I': {
-                        positive: 'I have done',
-                        negative: "I haven't done",
-                        question: 'Have I done?',
-                        whQuestion: 'What have I done?',
-                        russian: 'Я сделал/сделала'
-                    },
-                    'you': {
-                        positive: 'you have done',
-                        negative: "you haven't done",
-                        question: 'Have you done?',
-                        whQuestion: 'What have you done?',
-                        russian: 'ты сделал/сделала'
-                    },
-                    'he': {
-                        positive: 'he has done',
-                        negative: "he hasn't done",
-                        question: 'Has he done?',
-                        whQuestion: 'What has he done?',
-                        russian: 'он сделал'
-                    },
-                    'she': {
-                        positive: 'she has done',
-                        negative: "she hasn't done",
-                        question: 'Has she done?',
-                        whQuestion: 'What has she done?',
-                        russian: 'она сделала'
-                    },
-                    'it': {
-                        positive: 'it has done',
-                        negative: "it hasn't done",
-                        question: 'Has it done?',
-                        whQuestion: 'What has it done?',
-                        russian: 'оно сделало'
-                    },
-                    'we': {
-                        positive: 'we have done',
-                        negative: "we haven't done",
-                        question: 'Have we done?',
-                        whQuestion: 'What have we done?',
-                        russian: 'мы сделали'
-                    },
-                    'they': {
-                        positive: 'they have done',
-                        negative: "they haven't done",
-                        question: 'Have they done?',
-                        whQuestion: 'What have they done?',
-                        russian: 'они сделали'
-                    }
-                },
-                pastPerfect: {
-                    'I': {
-                        positive: 'I had done',
-                        negative: "I hadn't done",
-                        question: 'Had I done?',
-                        whQuestion: 'What had I done?',
-                        russian: 'Я сделал/сделала (до того)'
-                    },
-                    'you': {
-                        positive: 'you had done',
-                        negative: "you hadn't done",
-                        question: 'Had you done?',
-                        whQuestion: 'What had you done?',
-                        russian: 'ты сделал/сделала (до того)'
-                    },
-                    'he': {
-                        positive: 'he had done',
-                        negative: "he hadn't done",
-                        question: 'Had he done?',
-                        whQuestion: 'What had he done?',
-                        russian: 'он сделал (до того)'
-                    },
-                    'she': {
-                        positive: 'she had done',
-                        negative: "she hadn't done",
-                        question: 'Had she done?',
-                        whQuestion: 'What had she done?',
-                        russian: 'она сделала (до того)'
-                    },
-                    'it': {
-                        positive: 'it had done',
-                        negative: "it hadn't done",
-                        question: 'Had it done?',
-                        whQuestion: 'What had it done?',
-                        russian: 'оно сделало (до того)'
-                    },
-                    'we': {
-                        positive: 'we had done',
-                        negative: "we hadn't done",
-                        question: 'Had we done?',
-                        whQuestion: 'What had we done?',
-                        russian: 'мы сделали (до того)'
-                    },
-                    'they': {
-                        positive: 'they had done',
-                        negative: "they hadn't done",
-                        question: 'Had they done?',
-                        whQuestion: 'What had they done?',
-                        russian: 'они сделали (до того)'
-                    }
-                }
-            },
-
-            // HAVE verb
-            'have': {
-                present: {
-                    'I': {
-                        positive: 'I have',
-                        negative: "I don't have",
-                        question: 'Do I have?',
-                        whQuestion: 'What do I have?',
-                        russian: 'Я имею'
-                    },
-                    'you': {
-                        positive: 'you have',
-                        negative: "you don't have",
-                        question: 'Do you have?',
-                        whQuestion: 'What do you have?',
-                        russian: 'ты имеешь'
-                    },
-                    'he': {
-                        positive: 'he has',
-                        negative: "he doesn't have",
-                        question: 'Does he have?',
-                        whQuestion: 'What does he have?',
-                        russian: 'он имеет'
-                    },
-                    'she': {
-                        positive: 'she has',
-                        negative: "she doesn't have",
-                        question: 'Does she have?',
-                        whQuestion: 'What does she have?',
-                        russian: 'она имеет'
-                    },
-                    'it': {
-                        positive: 'it has',
-                        negative: "it doesn't have",
-                        question: 'Does it have?',
-                        whQuestion: 'What does it have?',
-                        russian: 'оно имеет'
-                    },
-                    'we': {
-                        positive: 'we have',
-                        negative: "we don't have",
-                        question: 'Do we have?',
-                        whQuestion: 'What do we have?',
-                        russian: 'мы имеем'
-                    },
-                    'they': {
-                        positive: 'they have',
-                        negative: "they don't have",
-                        question: 'Do they have?',
-                        whQuestion: 'What do they have?',
-                        russian: 'они имеют'
-                    }
-                },
-                past: {
-                    'I': {
-                        positive: 'I had',
-                        negative: "I didn't have",
-                        question: 'Did I have?',
-                        whQuestion: 'What did I have?',
-                        russian: 'Я имел/имела'
-                    },
-                    'you': {
-                        positive: 'you had',
-                        negative: "you didn't have",
-                        question: 'Did you have?',
-                        whQuestion: 'What did you have?',
-                        russian: 'ты имел/имела'
-                    },
-                    'he': {
-                        positive: 'he had',
-                        negative: "he didn't have",
-                        question: 'Did he have?',
-                        whQuestion: 'What did he have?',
-                        russian: 'он имел'
-                    },
-                    'she': {
-                        positive: 'she had',
-                        negative: "she didn't have",
-                        question: 'Did she have?',
-                        whQuestion: 'What did she have?',
-                        russian: 'она имела'
-                    },
-                    'it': {
-                        positive: 'it had',
-                        negative: "it didn't have",
-                        question: 'Did it have?',
-                        whQuestion: 'What did it have?',
-                        russian: 'оно имело'
-                    },
-                    'we': {
-                        positive: 'we had',
-                        negative: "we didn't have",
-                        question: 'Did we have?',
-                        whQuestion: 'What did we have?',
-                        russian: 'мы имели'
-                    },
-                    'they': {
-                        positive: 'they had',
-                        negative: "they didn't have",
-                        question: 'Did they have?',
-                        whQuestion: 'What did they have?',
-                        russian: 'они имели'
-                    }
-                },
-                future: {
-                    'I': {
-                        positive: 'I will have',
-                        negative: "I won't have",
-                        question: 'Will I have?',
-                        whQuestion: 'What will I have?',
-                        russian: 'Я буду иметь'
-                    },
-                    'you': {
-                        positive: 'you will have',
-                        negative: "you won't have",
-                        question: 'Will you have?',
-                        whQuestion: 'What will you have?',
-                        russian: 'ты будешь иметь'
-                    },
-                    'he': {
-                        positive: 'he will have',
-                        negative: "he won't have",
-                        question: 'Will he have?',
-                        whQuestion: 'What will he have?',
-                        russian: 'он будет иметь'
-                    },
-                    'she': {
-                        positive: 'she will have',
-                        negative: "she won't have",
-                        question: 'Will she have?',
-                        whQuestion: 'What will she have?',
-                        russian: 'она будет иметь'
-                    },
-                    'it': {
-                        positive: 'it will have',
-                        negative: "it won't have",
-                        question: 'Will it have?',
-                        whQuestion: 'What will it have?',
-                        russian: 'оно будет иметь'
-                    },
-                    'we': {
-                        positive: 'we will have',
-                        negative: "we won't have",
-                        question: 'Will we have?',
-                        whQuestion: 'What will we have?',
-                        russian: 'мы будем иметь'
-                    },
-                    'they': {
-                        positive: 'they will have',
-                        negative: "they won't have",
-                        question: 'Will they have?',
-                        whQuestion: 'What will they have?',
-                        russian: 'они будут иметь'
-                    }
-                },
-                presentPerfect: {
-                    'I': {
-                        positive: 'I have had',
-                        negative: "I haven't had",
-                        question: 'Have I had?',
-                        whQuestion: 'What have I had?',
-                        russian: 'Я имел/имела'
-                    },
-                    'you': {
-                        positive: 'you have had',
-                        negative: "you haven't had",
-                        question: 'Have you had?',
-                        whQuestion: 'What have you had?',
-                        russian: 'ты имел/имела'
-                    },
-                    'he': {
-                        positive: 'he has had',
-                        negative: "he hasn't had",
-                        question: 'Has he had?',
-                        whQuestion: 'What has he had?',
-                        russian: 'он имел'
-                    },
-                    'she': {
-                        positive: 'she has had',
-                        negative: "she hasn't had",
-                        question: 'Has she had?',
-                        whQuestion: 'What has she had?',
-                        russian: 'она имела'
-                    },
-                    'it': {
-                        positive: 'it has had',
-                        negative: "it hasn't had",
-                        question: 'Has it had?',
-                        whQuestion: 'What has it had?',
-                        russian: 'оно имело'
-                    },
-                    'we': {
-                        positive: 'we have had',
-                        negative: "we haven't had",
-                        question: 'Have we had?',
-                        whQuestion: 'What have we had?',
-                        russian: 'мы имели'
-                    },
-                    'they': {
-                        positive: 'they have had',
-                        negative: "they haven't had",
-                        question: 'Have they had?',
-                        whQuestion: 'What have they had?',
-                        russian: 'они имели'
-                    }
-                },
-                pastPerfect: {
-                    'I': {
-                        positive: 'I had had',
-                        negative: "I hadn't had",
-                        question: 'Had I had?',
-                        whQuestion: 'What had I had?',
-                        russian: 'Я имел/имела (до того)'
-                    },
-                    'you': {
-                        positive: 'you had had',
-                        negative: "you hadn't had",
-                        question: 'Had you had?',
-                        whQuestion: 'What had you had?',
-                        russian: 'ты имел/имела (до того)'
-                    },
-                    'he': {
-                        positive: 'he had had',
-                        negative: "he hadn't had",
-                        question: 'Had he had?',
-                        whQuestion: 'What had he had?',
-                        russian: 'он имел (до того)'
-                    },
-                    'she': {
-                        positive: 'she had had',
-                        negative: "she hadn't had",
-                        question: 'Had she had?',
-                        whQuestion: 'What had she had?',
-                        russian: 'она имела (до того)'
-                    },
-                    'it': {
-                        positive: 'it had had',
-                        negative: "it hadn't had",
-                        question: 'Had it had?',
-                        whQuestion: 'What had it had?',
-                        russian: 'оно имело (до того)'
-                    },
-                    'we': {
-                        positive: 'we had had',
-                        negative: "we hadn't had",
-                        question: 'Had we had?',
-                        whQuestion: 'What had we had?',
-                        russian: 'мы имели (до того)'
-                    },
-                    'they': {
-                        positive: 'they had had',
-                        negative: "they hadn't had",
-                        question: 'Had they had?',
-                        whQuestion: 'What had they had?',
-                        russian: 'они имели (до того)'
-                    }
-                }
-            },
-
-            // SEE verb
-            'see': {
-                present: {
-                    'I': {
-                        positive: 'I see',
-                        negative: "I don't see",
-                        question: 'Do I see?',
-                        whQuestion: 'What do I see?',
-                        russian: 'Я вижу'
-                    },
-                    'you': {
-                        positive: 'you see',
-                        negative: "you don't see",
-                        question: 'Do you see?',
-                        whQuestion: 'What do you see?',
-                        russian: 'ты видишь'
-                    },
-                    'he': {
-                        positive: 'he sees',
-                        negative: "he doesn't see",
-                        question: 'Does he see?',
-                        whQuestion: 'What does he see?',
-                        russian: 'он видит'
-                    },
-                    'she': {
-                        positive: 'she sees',
-                        negative: "she doesn't see",
-                        question: 'Does she see?',
-                        whQuestion: 'What does she see?',
-                        russian: 'она видит'
-                    },
-                    'it': {
-                        positive: 'it sees',
-                        negative: "it doesn't see",
-                        question: 'Does it see?',
-                        whQuestion: 'What does it see?',
-                        russian: 'оно видит'
-                    },
-                    'we': {
-                        positive: 'we see',
-                        negative: "we don't see",
-                        question: 'Do we see?',
-                        whQuestion: 'What do we see?',
-                        russian: 'мы видим'
-                    },
-                    'they': {
-                        positive: 'they see',
-                        negative: "they don't see",
-                        question: 'Do they see?',
-                        whQuestion: 'What do they see?',
-                        russian: 'они видят'
-                    }
-                },
-                past: {
-                    'I': {
-                        positive: 'I saw',
-                        negative: "I didn't see",
-                        question: 'Did I see?',
-                        whQuestion: 'What did I see?',
-                        russian: 'Я видел/видела'
-                    },
-                    'you': {
-                        positive: 'you saw',
-                        negative: "you didn't see",
-                        question: 'Did you see?',
-                        whQuestion: 'What did you see?',
-                        russian: 'ты видел/видела'
-                    },
-                    'he': {
-                        positive: 'he saw',
-                        negative: "he didn't see",
-                        question: 'Did he see?',
-                        whQuestion: 'What did he see?',
-                        russian: 'он видел'
-                    },
-                    'she': {
-                        positive: 'she saw',
-                        negative: "she didn't see",
-                        question: 'Did she see?',
-                        whQuestion: 'What did she see?',
-                        russian: 'она видела'
-                    },
-                    'it': {
-                        positive: 'it saw',
-                        negative: "it didn't see",
-                        question: 'Did it see?',
-                        whQuestion: 'What did it see?',
-                        russian: 'оно видело'
-                    },
-                    'we': {
-                        positive: 'we saw',
-                        negative: "we didn't see",
-                        question: 'Did we see?',
-                        whQuestion: 'What did we see?',
-                        russian: 'мы видели'
-                    },
-                    'they': {
-                        positive: 'they saw',
-                        negative: "they didn't see",
-                        question: 'Did they see?',
-                        whQuestion: 'What did they see?',
-                        russian: 'они видели'
-                    }
-                },
-                future: {
-                    'I': {
-                        positive: 'I will see',
-                        negative: "I won't see",
-                        question: 'Will I see?',
-                        whQuestion: 'What will I see?',
-                        russian: 'Я увижу'
-                    },
-                    'you': {
-                        positive: 'you will see',
-                        negative: "you won't see",
-                        question: 'Will you see?',
-                        whQuestion: 'What will you see?',
-                        russian: 'ты увидишь'
-                    },
-                    'he': {
-                        positive: 'he will see',
-                        negative: "he won't see",
-                        question: 'Will he see?',
-                        whQuestion: 'What will he see?',
-                        russian: 'он увидит'
-                    },
-                    'she': {
-                        positive: 'she will see',
-                        negative: "she won't see",
-                        question: 'Will she see?',
-                        whQuestion: 'What will she see?',
-                        russian: 'она увидит'
-                    },
-                    'it': {
-                        positive: 'it will see',
-                        negative: "it won't see",
-                        question: 'Will it see?',
-                        whQuestion: 'What will it see?',
-                        russian: 'оно увидит'
-                    },
-                    'we': {
-                        positive: 'we will see',
-                        negative: "we won't see",
-                        question: 'Will we see?',
-                        whQuestion: 'What will we see?',
-                        russian: 'мы увидим'
-                    },
-                    'they': {
-                        positive: 'they will see',
-                        negative: "they won't see",
-                        question: 'Will they see?',
-                        whQuestion: 'What will they see?',
-                        russian: 'они увидят'
-                    }
-                },
-                presentPerfect: {
-                    'I': {
-                        positive: 'I have seen',
-                        negative: "I haven't seen",
-                        question: 'Have I seen?',
-                        whQuestion: 'What have I seen?',
-                        russian: 'Я видел/видела'
-                    },
-                    'you': {
-                        positive: 'you have seen',
-                        negative: "you haven't seen",
-                        question: 'Have you seen?',
-                        whQuestion: 'What have you seen?',
-                        russian: 'ты видел/видела'
-                    },
-                    'he': {
-                        positive: 'he has seen',
-                        negative: "he hasn't seen",
-                        question: 'Has he seen?',
-                        whQuestion: 'What has he seen?',
-                        russian: 'он видел'
-                    },
-                    'she': {
-                        positive: 'she has seen',
-                        negative: "she hasn't seen",
-                        question: 'Has she seen?',
-                        whQuestion: 'What has she seen?',
-                        russian: 'она видела'
-                    },
-                    'it': {
-                        positive: 'it has seen',
-                        negative: "it hasn't seen",
-                        question: 'Has it seen?',
-                        whQuestion: 'What has it seen?',
-                        russian: 'оно видело'
-                    },
-                    'we': {
-                        positive: 'we have seen',
-                        negative: "we haven't seen",
-                        question: 'Have we seen?',
-                        whQuestion: 'What have we seen?',
-                        russian: 'мы видели'
-                    },
-                    'they': {
-                        positive: 'they have seen',
-                        negative: "they haven't seen",
-                        question: 'Have they seen?',
-                        whQuestion: 'What have they seen?',
-                        russian: 'они видели'
-                    }
-                },
-                pastPerfect: {
-                    'I': {
-                        positive: 'I had seen',
-                        negative: "I hadn't seen",
-                        question: 'Had I seen?',
-                        whQuestion: 'What had I seen?',
-                        russian: 'Я видел/видела (до того)'
-                    },
-                    'you': {
-                        positive: 'you had seen',
-                        negative: "you hadn't seen",
-                        question: 'Had you seen?',
-                        whQuestion: 'What had you seen?',
-                        russian: 'ты видел/видела (до того)'
-                    },
-                    'he': {
-                        positive: 'he had seen',
-                        negative: "he hadn't seen",
-                        question: 'Had he seen?',
-                        whQuestion: 'What had he seen?',
-                        russian: 'он видел (до того)'
-                    },
-                    'she': {
-                        positive: 'she had seen',
-                        negative: "she hadn't seen",
-                        question: 'Had she seen?',
-                        whQuestion: 'What had she seen?',
-                        russian: 'она видела (до того)'
-                    },
-                    'it': {
-                        positive: 'it had seen',
-                        negative: "it hadn't seen",
-                        question: 'Had it seen?',
-                        whQuestion: 'What had it seen?',
-                        russian: 'оно видело (до того)'
-                    },
-                    'we': {
-                        positive: 'we had seen',
-                        negative: "we hadn't seen",
-                        question: 'Had we seen?',
-                        whQuestion: 'What had we seen?',
-                        russian: 'мы видели (до того)'
-                    },
-                    'they': {
-                        positive: 'they had seen',
-                        negative: "they hadn't seen",
-                        question: 'Had they seen?',
-                        whQuestion: 'What had they seen?',
-                        russian: 'они видели (до того)'
-                    }
-                }
-            }
-        };
-
-        // Add Present Perfect and Past Perfect to all other verbs
-        const verbsToUpdate = Object.keys(verbDictionary);
-        
-        verbsToUpdate.forEach(verb => {
-            // Skip verbs that already have perfect tenses
-            if (!verbDictionary[verb].presentPerfect) {
-                // Determine past participle form
-                let pastParticiple;
-                const irregularParticiples = {
-                    'beat': 'beaten',
-                    'become': 'become',
-                    'begin': 'begun',
-                    'break': 'broken',
-                    'bring': 'brought',
-                    'build': 'built',
-                    'buy': 'bought',
-                    'catch': 'caught',
-                    'choose': 'chosen',
-                    'come': 'come',
-                    'cost': 'cost',
-                    'draw': 'drawn',
-                    'dream': 'dreamt',
-                    'drink': 'drunk',
-                    'drive': 'driven',
-                    'eat': 'eaten',
-                    'fall': 'fallen',
-                    'feel': 'felt',
-                    'find': 'found',
-                    'fly': 'flown',
-                    'get': 'got',
-                    'give': 'given',
-                    'grow': 'grown',
-                    'hear': 'heard',
-                    'know': 'known',
-                    'learn': 'learnt',
-                    'leave': 'left',
-                    'lie': 'lain',
-                    'make': 'made',
-                    'meet': 'met',
-                    'put': 'put',
-                    'read': 'read',
-                    'run': 'run',
-                    'say': 'said',
-                    'seek': 'sought',
-                    'show': 'shown',
-                    'sing': 'sung',
-                    'sit': 'sat',
-                    'sleep': 'slept',
-                    'speak': 'spoken',
-                    'stand': 'stood',
-                    'swim': 'swum',
-                    'take': 'taken',
-                    'teach': 'taught',
-                    'tell': 'told',
-                    'think': 'thought',
-                    'throw': 'thrown',
-                    'understand': 'understood',
-                    'write': 'written',
-                    'fix': 'fixed',
-                    'play': 'played',
-                    'study': 'studied',
-                    'work': 'worked',
-                    'cry': 'cried'
+            
+            // Exercise management
+            startExercise(tense) {
+                this.currentTense = tense;
+                this.currentSubjectIndex = 0;
+                this.currentVerb = 'go';
+                
+                // Reset examples visibility to shown
+                this.examplesHidden = false;
+                const sentences = ['sentence2', 'sentence3', 'sentence4'];
+                sentences.forEach(id => {
+                    document.getElementById(id).style.display = 'block';
+                });
+                
+                // Update title and back button
+                const titles = {
+                    'present': 'Present Simple',
+                    'past': 'Past Simple', 
+                    'future': 'Future Simple',
+                    'presentPerfect': 'Present Perfect',
+                    'pastPerfect': 'Past Perfect',
+                    'presentContinuous': 'Present Continuous',
+                    'pastContinuous': 'Past Continuous',
+                    'futureContinuous': 'Future Continuous',
+                    'presentPerfectContinuous': 'Present Perfect Continuous',
+                    'pastPerfectContinuous': 'Past Perfect Continuous'
                 };
                 
-                pastParticiple = irregularParticiples[verb] || verb + 'ed';
+                document.getElementById('exerciseTitle').textContent = titles[tense];
                 
-                // Add Present Perfect
-                verbDictionary[verb].presentPerfect = {
-                    'I': {
-                        positive: `I have ${pastParticiple}`,
-                        negative: `I haven't ${pastParticiple}`,
-                        question: `Have I ${pastParticiple}?`,
-                        whQuestion: `What have I ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['I'].russian
-                    },
-                    'you': {
-                        positive: `you have ${pastParticiple}`,
-                        negative: `you haven't ${pastParticiple}`,
-                        question: `Have you ${pastParticiple}?`,
-                        whQuestion: `What have you ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['you'].russian
-                    },
-                    'he': {
-                        positive: `he has ${pastParticiple}`,
-                        negative: `he hasn't ${pastParticiple}`,
-                        question: `Has he ${pastParticiple}?`,
-                        whQuestion: `What has he ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['he'].russian
-                    },
-                    'she': {
-                        positive: `she has ${pastParticiple}`,
-                        negative: `she hasn't ${pastParticiple}`,
-                        question: `Has she ${pastParticiple}?`,
-                        whQuestion: `What has she ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['she'].russian
-                    },
-                    'it': {
-                        positive: `it has ${pastParticiple}`,
-                        negative: `it hasn't ${pastParticiple}`,
-                        question: `Has it ${pastParticiple}?`,
-                        whQuestion: `What has it ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['it'].russian
-                    },
-                    'we': {
-                        positive: `we have ${pastParticiple}`,
-                        negative: `we haven't ${pastParticiple}`,
-                        question: `Have we ${pastParticiple}?`,
-                        whQuestion: `What have we ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['we'].russian
-                    },
-                    'they': {
-                        positive: `they have ${pastParticiple}`,
-                        negative: `they haven't ${pastParticiple}`,
-                        question: `Have they ${pastParticiple}?`,
-                        whQuestion: `What have they ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['they'].russian
-                    }
-                };
-                
-                // Add Past Perfect
-                verbDictionary[verb].pastPerfect = {
-                    'I': {
-                        positive: `I had ${pastParticiple}`,
-                        negative: `I hadn't ${pastParticiple}`,
-                        question: `Had I ${pastParticiple}?`,
-                        whQuestion: `What had I ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['I'].russian.replace(/\./g, '') + ' (до того)'
-                    },
-                    'you': {
-                        positive: `you had ${pastParticiple}`,
-                        negative: `you hadn't ${pastParticiple}`,
-                        question: `Had you ${pastParticiple}?`,
-                        whQuestion: `What had you ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['you'].russian.replace(/\./g, '') + ' (до того)'
-                    },
-                    'he': {
-                        positive: `he had ${pastParticiple}`,
-                        negative: `he hadn't ${pastParticiple}`,
-                        question: `Had he ${pastParticiple}?`,
-                        whQuestion: `What had he ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['he'].russian.replace(/\./g, '') + ' (до того)'
-                    },
-                    'she': {
-                        positive: `she had ${pastParticiple}`,
-                        negative: `she hadn't ${pastParticiple}`,
-                        question: `Had she ${pastParticiple}?`,
-                        whQuestion: `What had she ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['she'].russian.replace(/\./g, '') + ' (до того)'
-                    },
-                    'it': {
-                        positive: `it had ${pastParticiple}`,
-                        negative: `it hadn't ${pastParticiple}`,
-                        question: `Had it ${pastParticiple}?`,
-                        whQuestion: `What had it ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['it'].russian.replace(/\./g, '') + ' (до того)'
-                    },
-                    'we': {
-                        positive: `we had ${pastParticiple}`,
-                        negative: `we hadn't ${pastParticiple}`,
-                        question: `Had we ${pastParticiple}?`,
-                        whQuestion: `What had we ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['we'].russian.replace(/\./g, '') + ' (до того)'
-                    },
-                    'they': {
-                        positive: `they had ${pastParticiple}`,
-                        negative: `they hadn't ${pastParticiple}`,
-                        question: `Had they ${pastParticiple}?`,
-                        whQuestion: `What had they ${pastParticiple}?`,
-                        russian: verbDictionary[verb].past['they'].russian.replace(/\./g, '') + ' (до того)'
-                    }
-                };
-            }
-        });
-
-        // Create a list of all available verbs
-        const verbs = Object.keys(verbDictionary);
-        
-        // Data
-        const allSubjects = ['I', 'you', 'he', 'she', 'it', 'we', 'they'];
-
-        // State
-        let currentVerb = 'go';
-        let currentSubjectIndex = 0;
-        let isLoading = false;
-        
-        // State for Past Simple
-        let currentVerbPast = 'go';
-        let currentSubjectIndexPast = 0;
-        
-        // State for Future Simple
-        let currentVerbFuture = 'go';
-        let currentSubjectIndexFuture = 0;
-        
-        // State for Present Perfect
-        let currentVerbPresentPerfect = 'go';
-        let currentSubjectIndexPresentPerfect = 0;
-        
-        // State for Past Perfect
-        let currentVerbPastPerfect = 'go';
-        let currentSubjectIndexPastPerfect = 0;
-        
-        // Audio settings
-        let audioEnabled = true;
-        
-        // Test Yourself state
-        let currentTestData = null;
-        let revealStage = 0;
-
-        // State for rules modal
-        let currentRulesLanguage = 'russian';
-        
-        // Function to show rules modal
-        function showRules(tense) {
-            const modalOverlay = document.createElement('div');
-            modalOverlay.className = 'modal-overlay';
-            modalOverlay.id = 'rulesModal';
-            modalOverlay.onclick = function(e) {
-                if (e.target === modalOverlay) {
-                    closeRules();
-                }
-            };
-            
-            const modalContent = document.createElement('div');
-            modalContent.className = 'modal-content';
-            
-            const closeButton = document.createElement('button');
-            closeButton.className = 'modal-close';
-            closeButton.innerHTML = '×';
-            closeButton.onclick = closeRules;
-            
-            const title = document.createElement('h3');
-            title.className = 'modal-title';
-            
-            let tenseTitle = '';
-            switch(tense) {
-                case 'present':
-                    tenseTitle = 'Present Simple';
-                    break;
-                case 'past':
-                    tenseTitle = 'Past Simple';
-                    break;
-                case 'future':
-                    tenseTitle = 'Future Simple';
-                    break;
-                case 'presentPerfect':
-                    tenseTitle = 'Present Perfect';
-                    break;
-                case 'pastPerfect':
-                    tenseTitle = 'Past Perfect';
-                    break;
-            }
-            title.textContent = tenseTitle + ' Rules';
-            
-            const description = document.createElement('div');
-            description.className = 'modal-description';
-            description.id = 'rulesDescription';
-            description.textContent = tenseRules[tense][currentRulesLanguage];
-            description.onclick = function() {
-                toggleRulesLanguage(tense);
-            };
-            
-            modalContent.appendChild(closeButton);
-            modalContent.appendChild(title);
-            modalContent.appendChild(description);
-            modalOverlay.appendChild(modalContent);
-            
-            document.body.appendChild(modalOverlay);
-            currentRulesLanguage = 'russian'; // Always start with Russian
-        }
-        
-        function closeRules() {
-            const modal = document.getElementById('rulesModal');
-            if (modal) {
-                modal.remove();
-            }
-        }
-        
-        function toggleRulesLanguage(tense) {
-            currentRulesLanguage = currentRulesLanguage === 'russian' ? 'english' : 'russian';
-            const description = document.getElementById('rulesDescription');
-            if (description) {
-                description.textContent = tenseRules[tense][currentRulesLanguage];
-            }
-        }
-
-        // Navigation functions
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.add('hidden');
-            });
-            document.getElementById(screenId).classList.remove('hidden');
-        }
-
-        function showMainMenu() {
-            showScreen('mainMenu');
-        }
-
-        function showExercises() {
-            showScreen('exercisesMenu');
-        }
-
-        function showTestYourself() {
-            showScreen('testYourself');
-            // Ensure proper initial state
-            document.getElementById('russianSentence').style.display = 'block';
-            document.querySelectorAll('.english').forEach(el => {
-                el.style.display = 'none';
-            });
-            generateNewTest();
-        }
-
-        function startPresentSimple() {
-            showScreen('presentSimple');
-            currentSubjectIndex = 0;
-            updateExerciseDisplay();
-        }
-
-        function startPastSimple() {
-            showScreen('pastSimple');
-            currentSubjectIndexPast = 0;
-            updatePastSimpleDisplay();
-        }
-
-        function startFutureSimple() {
-            showScreen('futureSimple');
-            currentSubjectIndexFuture = 0;
-            updateFutureSimpleDisplay();
-        }
-
-        function startPresentPerfect() {
-            showScreen('presentPerfect');
-            currentSubjectIndexPresentPerfect = 0;
-            updatePresentPerfectDisplay();
-        }
-
-        function startPastPerfect() {
-            showScreen('pastPerfect');
-            currentSubjectIndexPastPerfect = 0;
-            updatePastPerfectDisplay();
-        }
-
-        // Present Perfect Exercise Functions
-        function updatePresentPerfectDisplay() {
-            if (isLoading) return;
-            
-            const subject = allSubjects[currentSubjectIndexPresentPerfect];
-            
-            try {
-                // Get verb data from dictionary
-                const verbData = verbDictionary[currentVerbPresentPerfect]?.presentPerfect?.[subject];
-                
-                if (verbData) {
-                    document.getElementById('sentencePresentPerfect1').textContent = verbData.positive;
-                    document.getElementById('sentencePresentPerfect2').textContent = verbData.negative;
-                    document.getElementById('sentencePresentPerfect3').textContent = verbData.question;
-                    document.getElementById('sentencePresentPerfect4').textContent = verbData.whQuestion;
+                // Set appropriate back navigation
+                const backButton = document.getElementById('exerciseBackButton');
+                if (['present', 'past', 'future', 'presentPerfect', 'pastPerfect'].includes(tense)) {
+                    backButton.onclick = () => this.showSimpleMenu();
+                } else {
+                    backButton.onclick = () => this.showContinuousMenu();
                 }
                 
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                this.navigationHistory.push('exerciseTemplate');
+                this.showScreen('exerciseTemplate');
+                this.updateExerciseDisplay();
+            },
             
-            // Update verb info with Russian infinitive and three forms
-            const russianInfinitive = verbInfinitives[currentVerbPresentPerfect] || '';
-            const threeFormsDisplay = verbForms[currentVerbPresentPerfect] ? `<br>(${verbForms[currentVerbPresentPerfect]})` : '';
-            document.getElementById('currentVerbPresentPerfect').innerHTML = 
-                `Current verb: ${currentVerbPresentPerfect} - ${russianInfinitive}${threeFormsDisplay}`;
-        }
-
-        function nextSubjectPresentPerfect() {
-            if (!isLoading) {
-                currentSubjectIndexPresentPerfect++;
-                if (currentSubjectIndexPresentPerfect >= allSubjects.length) {
-                    currentSubjectIndexPresentPerfect = 0;
-                }
-                updatePresentPerfectDisplay();
-            }
-        }
-
-        function previousSubjectPresentPerfect() {
-            if (!isLoading) {
-                currentSubjectIndexPresentPerfect--;
-                if (currentSubjectIndexPresentPerfect < 0) {
-                    currentSubjectIndexPresentPerfect = allSubjects.length - 1;
-                }
-                updatePresentPerfectDisplay();
-            }
-        }
-
-        function changeVerbPresentPerfect() {
-            if (isLoading) return;
-            
-            let newVerb;
-            do {
-                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            } while (newVerb === currentVerbPresentPerfect);
-            
-            currentVerbPresentPerfect = newVerb;
-            currentSubjectIndexPresentPerfect = Math.floor(Math.random() * allSubjects.length);
-            
-            updatePresentPerfectDisplay();
-        }
-
-        // Past Perfect Exercise Functions
-        function updatePastPerfectDisplay() {
-            if (isLoading) return;
-            
-            const subject = allSubjects[currentSubjectIndexPastPerfect];
-            
-            try {
-                // Get verb data from dictionary
-                const verbData = verbDictionary[currentVerbPastPerfect]?.pastPerfect?.[subject];
+            updateExerciseDisplay() {
+                if (this.isLoading) return;
                 
-                if (verbData) {
-                    document.getElementById('sentencePastPerfect1').textContent = verbData.positive;
-                    document.getElementById('sentencePastPerfect2').textContent = verbData.negative;
-                    document.getElementById('sentencePastPerfect3').textContent = verbData.question;
-                    document.getElementById('sentencePastPerfect4').textContent = verbData.whQuestion;
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-            }
-            
-            // Update verb info with Russian infinitive and three forms
-            const russianInfinitive = verbInfinitives[currentVerbPastPerfect] || '';
-            const threeFormsDisplay = verbForms[currentVerbPastPerfect] ? `<br>(${verbForms[currentVerbPastPerfect]})` : '';
-            document.getElementById('currentVerbPastPerfect').innerHTML = 
-                `Current verb: ${currentVerbPastPerfect} - ${russianInfinitive}${threeFormsDisplay}`;
-        }
-
-        function nextSubjectPastPerfect() {
-            if (!isLoading) {
-                currentSubjectIndexPastPerfect++;
-                if (currentSubjectIndexPastPerfect >= allSubjects.length) {
-                    currentSubjectIndexPastPerfect = 0;
-                }
-                updatePastPerfectDisplay();
-            }
-        }
-
-        function previousSubjectPastPerfect() {
-            if (!isLoading) {
-                currentSubjectIndexPastPerfect--;
-                if (currentSubjectIndexPastPerfect < 0) {
-                    currentSubjectIndexPastPerfect = allSubjects.length - 1;
-                }
-                updatePastPerfectDisplay();
-            }
-        }
-
-        function changeVerbPastPerfect() {
-            if (isLoading) return;
-            
-            let newVerb;
-            do {
-                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            } while (newVerb === currentVerbPastPerfect);
-            
-            currentVerbPastPerfect = newVerb;
-            currentSubjectIndexPastPerfect = Math.floor(Math.random() * allSubjects.length);
-            
-            updatePastPerfectDisplay();
-        }
-
-        // Future Simple Exercise Functions
-        function updateFutureSimpleDisplay() {
-            if (isLoading) return;
-            
-            const subject = allSubjects[currentSubjectIndexFuture];
-            
-            try {
-                // Get verb data from dictionary
-                const verbData = verbDictionary[currentVerbFuture]?.future?.[subject];
-                
-                if (verbData) {
-                    document.getElementById('sentenceFuture1').textContent = verbData.positive;
-                    document.getElementById('sentenceFuture2').textContent = verbData.negative;
-                    document.getElementById('sentenceFuture3').textContent = verbData.question;
-                    document.getElementById('sentenceFuture4').textContent = verbData.whQuestion;
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-            }
-            
-            // Update verb info with Russian infinitive and three forms
-            const russianInfinitive = verbInfinitives[currentVerbFuture] || '';
-            const threeFormsDisplay = verbForms[currentVerbFuture] ? `<br>(${verbForms[currentVerbFuture]})` : '';
-            document.getElementById('currentVerbFuture').innerHTML = 
-                `Current verb: ${currentVerbFuture} - ${russianInfinitive}${threeFormsDisplay}`;
-        }
-
-        function nextSubjectFuture() {
-            if (!isLoading) {
-                currentSubjectIndexFuture++;
-                if (currentSubjectIndexFuture >= allSubjects.length) {
-                    currentSubjectIndexFuture = 0; // Loop back to beginning
-                }
-                updateFutureSimpleDisplay();
-            }
-        }
-
-        function previousSubjectFuture() {
-            if (!isLoading) {
-                currentSubjectIndexFuture--;
-                if (currentSubjectIndexFuture < 0) {
-                    currentSubjectIndexFuture = allSubjects.length - 1; // Loop to end
-                }
-                updateFutureSimpleDisplay();
-            }
-        }
-
-        function changeVerbFuture() {
-            if (isLoading) return;
-            
-            // Get a random verb different from the current one
-            let newVerb;
-            do {
-                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            } while (newVerb === currentVerbFuture);
-            
-            currentVerbFuture = newVerb;
-            
-            // Get a random subject
-            currentSubjectIndexFuture = Math.floor(Math.random() * allSubjects.length);
-            
-            updateFutureSimpleDisplay();
-        }
-
-        // Present Simple Exercise Functions
-        function updateExerciseDisplay() {
-            if (isLoading) return;
-            
-            const subject = allSubjects[currentSubjectIndex];
-            
-            try {
-                // Get verb data from dictionary
-                const verbData = verbDictionary[currentVerb]?.present?.[subject];
+                const subject = data.allSubjects[this.currentSubjectIndex];
+                const verbData = data.getVerbData(this.currentVerb, this.currentTense, subject);
                 
                 if (verbData) {
                     document.getElementById('sentence1').textContent = verbData.positive;
@@ -2685,329 +818,890 @@
                     document.getElementById('sentence4').textContent = verbData.whQuestion;
                 }
                 
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                // Update verb info
+                const russianInfinitive = data.verbInfinitives[this.currentVerb] || '';
+                const threeFormsDisplay = data.verbForms[this.currentVerb] ? 
+                    `<br>(${data.verbForms[this.currentVerb]})` : '';
+                document.getElementById('currentVerbInfo').innerHTML = 
+                    `Current verb: ${this.currentVerb} - ${russianInfinitive}${threeFormsDisplay}`;
+                
+                // Apply hidden state
+                this.applyExamplesVisibility();
+            },
             
-            // Update verb info with Russian infinitive and three forms
-            const russianInfinitive = verbInfinitives[currentVerb] || '';
-            const threeFormsDisplay = verbForms[currentVerb] ? `<br>(${verbForms[currentVerb]})` : '';
-            document.getElementById('currentVerb').innerHTML = 
-                `Current verb: ${currentVerb} - ${russianInfinitive}${threeFormsDisplay}`;
-        }
-
-        function nextSubject() {
-            if (!isLoading) {
-                currentSubjectIndex++;
-                if (currentSubjectIndex >= allSubjects.length) {
-                    currentSubjectIndex = 0; // Loop back to beginning
+            nextSubject() {
+                if (!this.isLoading) {
+                    this.currentSubjectIndex++;
+                    if (this.currentSubjectIndex >= data.allSubjects.length) {
+                        this.currentSubjectIndex = 0;
+                    }
+                    this.updateExerciseDisplay();
                 }
-                updateExerciseDisplay();
-            }
-        }
-
-        function previousSubject() {
-            if (!isLoading) {
-                currentSubjectIndex--;
-                if (currentSubjectIndex < 0) {
-                    currentSubjectIndex = allSubjects.length - 1; // Loop to end
+            },
+            
+            previousSubject() {
+                if (!this.isLoading) {
+                    this.currentSubjectIndex--;
+                    if (this.currentSubjectIndex < 0) {
+                        this.currentSubjectIndex = data.allSubjects.length - 1;
+                    }
+                    this.updateExerciseDisplay();
                 }
-                updateExerciseDisplay();
-            }
-        }
-
-        function changeVerb() {
-            if (isLoading) return;
+            },
             
-            // Get a random verb different from the current one
-            let newVerb;
-            do {
-                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            } while (newVerb === currentVerb);
+            changeVerb() {
+                if (this.isLoading) return;
+                
+                const verbs = Object.keys(data.verbInfinitives);
+                let newVerb;
+                let attempts = 0;
+                
+                do {
+                    newVerb = verbs[Math.floor(Math.random() * verbs.length)];
+                    attempts++;
+                    if (attempts > 10 && newVerb === this.currentVerb) {
+                        newVerb = 'play';
+                    }
+                } while (newVerb === this.currentVerb);
+                
+                this.currentVerb = newVerb;
+                this.currentSubjectIndex = Math.floor(Math.random() * data.allSubjects.length);
+                this.updateExerciseDisplay();
+            },
             
-            currentVerb = newVerb;
+            // Audio functions
+            speak(text) {
+                if ('speechSynthesis' in window && this.audioEnabled) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1;
+                    utterance.volume = 1;
+                    window.speechSynthesis.speak(utterance);
+                }
+            },
             
-            // Get a random subject
-            currentSubjectIndex = Math.floor(Math.random() * allSubjects.length);
+            playAudio() {
+                const sentences = [
+                    document.getElementById('sentence1').textContent,
+                    document.getElementById('sentence2').textContent,
+                    document.getElementById('sentence3').textContent,
+                    document.getElementById('sentence4').textContent
+                ];
+                
+                let index = 0;
+                const speakNext = () => {
+                    if (index < sentences.length) {
+                        this.speak(sentences[index]);
+                        index++;
+                        setTimeout(speakNext, 2000);
+                    }
+                };
+                speakNext();
+            },
             
-            updateExerciseDisplay();
-        }
-
-        // Past Simple Exercise Functions
-        function updatePastSimpleDisplay() {
-            if (isLoading) return;
+            // Rules modal
+            showRules() {
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'modal-overlay';
+                modalOverlay.id = 'rulesModal';
+                modalOverlay.onclick = (e) => {
+                    if (e.target === modalOverlay) {
+                        this.closeRules();
+                    }
+                };
+                
+                const modalContent = document.createElement('div');
+                modalContent.className = 'modal-content';
+                
+                const closeButton = document.createElement('button');
+                closeButton.className = 'modal-close';
+                closeButton.innerHTML = '×';
+                closeButton.onclick = () => this.closeRules();
+                
+                const title = document.createElement('h3');
+                title.className = 'modal-title';
+                
+                const tenseConfig = data.tenseConfig[this.currentTense];
+                title.textContent = tenseConfig.name + ' Rules';
+                
+                const description = document.createElement('div');
+                description.className = 'modal-description';
+                description.id = 'rulesDescription';
+                description.textContent = data.tenseRules[this.currentTense][this.currentRulesLanguage];
+                description.onclick = () => this.toggleRulesLanguage();
+                
+                modalContent.appendChild(closeButton);
+                modalContent.appendChild(title);
+                modalContent.appendChild(description);
+                modalOverlay.appendChild(modalContent);
+                
+                document.body.appendChild(modalOverlay);
+                this.currentRulesLanguage = 'russian';
+            },
             
-            const subject = allSubjects[currentSubjectIndexPast];
+            closeRules() {
+                const modal = document.getElementById('rulesModal');
+                if (modal) modal.remove();
+            },
             
-            try {
-                // Get verb data from dictionary
-                const verbData = verbDictionary[currentVerbPast]?.past?.[subject];
+            toggleRulesLanguage() {
+                this.currentRulesLanguage = 
+                    this.currentRulesLanguage === 'russian' ? 'english' : 'russian';
+                const description = document.getElementById('rulesDescription');
+                if (description) {
+                    description.textContent = 
+                        data.tenseRules[this.currentTense][this.currentRulesLanguage];
+                }
+            },
+            
+            // Test Yourself functions
+            generateNewTest() {
+                this.revealStage = 0;
+                
+                document.getElementById('testContainer').classList.remove('complete');
+                document.getElementById('russianSentence').style.display = 'block';
+                document.getElementById('russianSentence').classList.remove('hidden');
+                document.querySelectorAll('.english').forEach(el => {
+                    el.classList.add('hidden');
+                    el.style.display = 'none';
+                });
+                
+                let verbData = null;
+                let randomSubject, randomVerb, randomTense;
+                
+                // Keep trying until we get a valid combination
+                let attempts = 0;
+                while (!verbData && attempts < 50) {
+                    randomSubject = data.allSubjects[Math.floor(Math.random() * data.allSubjects.length)];
+                    const verbs = Object.keys(data.verbInfinitives);
+                    randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+                    const tenses = Object.keys(data.tenseConfig);
+                    randomTense = tenses[Math.floor(Math.random() * tenses.length)];
+                    
+                    verbData = data.getVerbData(randomVerb, randomTense, randomSubject);
+                    attempts++;
+                }
                 
                 if (verbData) {
-                    document.getElementById('sentencePast1').textContent = verbData.positive;
-                    document.getElementById('sentencePast2').textContent = verbData.negative;
-                    document.getElementById('sentencePast3').textContent = verbData.question;
-                    document.getElementById('sentencePast4').textContent = verbData.whQuestion;
+                    const russianEl = document.getElementById('russianSentence');
+                    const tenseConfig = data.tenseConfig[randomTense];
+                    
+                    // Display subject + (infinitive verb) instead of Russian
+                    russianEl.innerHTML = `
+                        <span class="tense-badge ${tenseConfig.class}" 
+                              aria-label="Use ${tenseConfig.name} tense">
+                            ⏱ ${tenseConfig.name}
+                        </span>
+                        ${randomSubject} (${randomVerb})
+                    `;
+                    
+                    document.getElementById('englishPositive').textContent = verbData.positive;
+                    document.getElementById('englishNegative').textContent = verbData.negative;
+                    document.getElementById('englishQuestion').textContent = verbData.question;
+                    document.getElementById('englishWhQuestion').textContent = verbData.whQuestion;
+                    
+                    this.currentTestData = {
+                        sentences: [
+                            verbData.positive,
+                            verbData.negative,
+                            verbData.question,
+                            verbData.whQuestion
+                        ]
+                    };
+                }
+            },
+            
+            revealNext() {
+                const elements = [
+                    'englishPositive',
+                    'englishNegative', 
+                    'englishQuestion',
+                    'englishWhQuestion'
+                ];
+                
+                if (this.revealStage < elements.length) {
+                    const element = document.getElementById(elements[this.revealStage]);
+                    element.classList.remove('hidden');
+                    element.style.cssText = 
+                        'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                    this.revealStage++;
+                    
+                    if (this.revealStage === elements.length) {
+                        document.getElementById('testContainer').classList.add('complete');
+                    }
+                }
+            },
+            
+            toggleInstructions() {
+                const instructions = document.getElementById('testInstructions');
+                if (instructions) {
+                    this.instructionsCollapsed = !this.instructionsCollapsed;
+                    if (this.instructionsCollapsed) {
+                        instructions.innerHTML = 'Instructions ▼';
+                    } else {
+                        instructions.innerHTML = `Составь в заданном времени:<br>
+                        - Утверждение<br>
+                        - Отрицание<br>
+                        - Вопрос<br>
+                        - Wh-вопрос<br>
+                        Клик, чтобы проверить себя`;
+                    }
+                }
+            }
+        };
+
+        // Data Module
+        const data = {
+            // Tense configuration
+            tenseConfig: {
+                'present': { name: 'Present Simple', class: 'present' },
+                'past': { name: 'Past Simple', class: 'past' },
+                'future': { name: 'Future Simple', class: 'future' },
+                'presentPerfect': { name: 'Present Perfect', class: 'present-perfect' },
+                'pastPerfect': { name: 'Past Perfect', class: 'past-perfect' },
+                'presentContinuous': { name: 'Present Continuous', class: 'present-continuous' },
+                'pastContinuous': { name: 'Past Continuous', class: 'past-continuous' },
+                'futureContinuous': { name: 'Future Continuous', class: 'future-continuous' },
+                'presentPerfectContinuous': { name: 'Present Perfect Continuous', class: 'present-perfect-continuous' },
+                'pastPerfectContinuous': { name: 'Past Perfect Continuous', class: 'past-perfect-continuous' }
+            },
+            
+            // All subjects
+            allSubjects: ['I', 'you', 'he', 'she', 'it', 'we', 'they'],
+            
+            // Russian infinitive forms
+            verbInfinitives: {
+                'be': 'быть',
+                'beat': 'бить',
+                'become': 'становиться',
+                'begin': 'начинать',
+                'break': 'ломать',
+                'bring': 'приносить',
+                'build': 'строить',
+                'buy': 'покупать',
+                'catch': 'ловить',
+                'choose': 'выбирать',
+                'come': 'приходить',
+                'cost': 'стоить',
+                'do': 'делать',
+                'draw': 'рисовать',
+                'dream': 'мечтать',
+                'drink': 'пить',
+                'drive': 'водить машину',
+                'eat': 'есть',
+                'fall': 'падать',
+                'feel': 'чувствовать',
+                'find': 'находить',
+                'fix': 'чинить',
+                'fly': 'летать',
+                'get': 'получать',
+                'give': 'давать',
+                'go': 'идти',
+                'grow': 'расти',
+                'have': 'иметь',
+                'hear': 'слышать',
+                'know': 'знать',
+                'learn': 'учиться',
+                'leave': 'уходить',
+                'lie': 'лежать',
+                'make': 'делать',
+                'meet': 'встречать',
+                'play': 'играть',
+                'put': 'класть',
+                'read': 'читать',
+                'run': 'бегать',
+                'say': 'говорить',
+                'see': 'видеть',
+                'seek': 'искать',
+                'show': 'показывать',
+                'sing': 'петь',
+                'sit': 'сидеть',
+                'sleep': 'спать',
+                'speak': 'говорить',
+                'stand': 'стоять',
+                'study': 'учиться',
+                'swim': 'плавать',
+                'take': 'брать',
+                'teach': 'учить',
+                'tell': 'рассказывать',
+                'think': 'думать',
+                'throw': 'бросать',
+                'understand': 'понимать',
+                'work': 'работать',
+                'write': 'писать',
+                'cry': 'плакать'
+            },
+            
+            // Three forms of verbs
+            verbForms: {
+                'be': 'be-was/were-been',
+                'beat': 'beat-beat-beaten',
+                'become': 'become-became-become',
+                'begin': 'begin-began-begun',
+                'break': 'break-broke-broken',
+                'bring': 'bring-brought-brought',
+                'build': 'build-built-built',
+                'buy': 'buy-bought-bought',
+                'catch': 'catch-caught-caught',
+                'choose': 'choose-chose-chosen',
+                'come': 'come-came-come',
+                'cost': 'cost-cost-cost',
+                'do': 'do-did-done',
+                'draw': 'draw-drew-drawn',
+                'dream': 'dream-dreamt-dreamt',
+                'drink': 'drink-drank-drunk',
+                'drive': 'drive-drove-driven',
+                'eat': 'eat-ate-eaten',
+                'fall': 'fall-fell-fallen',
+                'feel': 'feel-felt-felt',
+                'find': 'find-found-found',
+                'fix': 'fix-fixed-fixed',
+                'fly': 'fly-flew-flown',
+                'get': 'get-got-got',
+                'give': 'give-gave-given',
+                'go': 'go-went-gone',
+                'grow': 'grow-grew-grown',
+                'have': 'have-had-had',
+                'hear': 'hear-heard-heard',
+                'know': 'know-knew-known',
+                'learn': 'learn-learnt-learnt',
+                'leave': 'leave-left-left',
+                'lie': 'lie-lay-lain',
+                'make': 'make-made-made',
+                'meet': 'meet-met-met',
+                'play': 'play-played-played',
+                'put': 'put-put-put',
+                'read': 'read-read-read',
+                'run': 'run-ran-run',
+                'say': 'say-said-said',
+                'see': 'see-saw-seen',
+                'seek': 'seek-sought-sought',
+                'show': 'show-showed-shown',
+                'sing': 'sing-sang-sung',
+                'sit': 'sit-sat-sat',
+                'sleep': 'sleep-slept-slept',
+                'speak': 'speak-spoke-spoken',
+                'stand': 'stand-stood-stood',
+                'study': 'study-studied-studied',
+                'swim': 'swim-swam-swum',
+                'take': 'take-took-taken',
+                'teach': 'teach-taught-taught',
+                'tell': 'tell-told-told',
+                'think': 'think-thought-thought',
+                'throw': 'throw-threw-thrown',
+                'understand': 'understand-understood-understood',
+                'work': 'work-worked-worked',
+                'write': 'write-wrote-written',
+                'cry': 'cry-cried-cried'
+            },
+            
+            // Tense rules
+            tenseRules: {
+                present: {
+                    english: "Used for habits, routines, general truths, and scheduled events. It describes actions that happen regularly or are always true.",
+                    russian: "Используется для описания привычек, рутинных действий, общих истин и запланированных событий. Описывает действия, которые происходят регулярно или всегда верны."
+                },
+                past: {
+                    english: "Used for completed actions in the past, past habits, and actions with a specific time. It describes things that are finished, often with a specific time or date.",
+                    russian: "Используется для описания завершенных действий в прошлом, прошлых привычек и действий с указанием конкретного времени в прошлом. Описывает завершенные действия, часто с указанием конкретного времени или даты. События и факты из прошлого, следующие один за другим."
+                },
+                future: {
+                    english: "Used for predictions, spontaneous decisions, promises, and scheduled events. It describes actions that will happen in the future, whether planned or not.",
+                    russian: "Используется для предсказаний, обещаний и запланированных событий. Описывает действия, которые произойдут в будущем, запланированные или нет."
+                },
+                presentPerfect: {
+                    english: "Used for actions that started in the past and continue to the present, actions at an unspecified time, actions connected to the present, and recent actions. It shows a link between the past and the present.",
+                    russian: "Используется для действий, начавшихся в прошлом и продолжающихся в настоящем (я прожил здесь 10 лет), обозначения опыта/прецедента (я бывал в Калифорнии) и результат действий на данный момент (я сделал работу). Показывает связь между прошлым и настоящим."
+                },
+                pastPerfect: {
+                    english: "Used for actions that happened before another action in the past or before a specific time in the past, and in reported speech. It helps sequence events in the past.",
+                    russian: "Используется для действий, произошедших до другого действия в прошлом или до определенного времени в прошлом, а также в косвенной речи. Помогает упорядочить события в прошлом."
+                },
+                presentContinuous: {
+                    english: "Used for actions happening right now, temporary situations, planned future arrangements, and annoying habits. Describes ongoing actions at the moment of speaking.",
+                    russian: "Используется для действий, происходящих прямо сейчас, временных ситуаций, запланированных будущих мероприятий и раздражающих привычек. Описывает продолжающиеся действия в момент речи."
+                },
+                pastContinuous: {
+                    english: "Used for actions that were in progress at a specific time in the past, background actions, interrupted actions, and parallel actions in the past.",
+                    russian: "Используется для действий, которые происходили в определенный момент в прошлом, фоновых действий, прерванных действий и параллельных действий в прошлом."
+                },
+                futureContinuous: {
+                    english: "Used for actions that will be in progress at a specific time in the future, polite inquiries about plans, and events that will happen as a matter of course.",
+                    russian: "Используется для действий, которые будут происходить в определенный момент в будущем, вежливых вопросов о планах и событий, которые произойдут естественным образом."
+                },
+                presentPerfectContinuous: {
+                    english: "Used for actions that started in the past and are still continuing, or have just stopped but have present results. Emphasizes the duration of the action.",
+                    russian: "Используется для действий, которые начались в прошлом и все еще продолжаются, или только что закончились, но имеют результат в настоящем. Подчеркивает продолжительность действия."
+                },
+                pastPerfectContinuous: {
+                    english: "Used for actions that had been in progress before another action or time in the past. Shows the duration of an action up to a certain point in the past.",
+                    russian: "Используется для действий, которые продолжались до другого действия или момента в прошлом. Показывает продолжительность действия до определенного момента в прошлом."
+                }
+            },
+            
+            // Function to get verb data with all tense generation
+            getVerbData(verb, tense, subject) {
+                // Handle special verb "be"
+                if (verb === 'be') {
+                    return this.getBeVerbData(tense, subject);
                 }
                 
-            } catch (error) {
-                console.error('Error:', error);
-            }
-            
-            // Update verb info with Russian infinitive and three forms
-            const russianInfinitive = verbInfinitives[currentVerbPast] || '';
-            const threeFormsDisplay = verbForms[currentVerbPast] ? `<br>(${verbForms[currentVerbPast]})` : '';
-            document.getElementById('currentVerbPast').innerHTML = 
-                `Current verb: ${currentVerbPast} - ${russianInfinitive}${threeFormsDisplay}`;
-        }
-
-        function nextSubjectPast() {
-            if (!isLoading) {
-                currentSubjectIndexPast++;
-                if (currentSubjectIndexPast >= allSubjects.length) {
-                    currentSubjectIndexPast = 0; // Loop back to beginning
-                }
-                updatePastSimpleDisplay();
-            }
-        }
-
-        function previousSubjectPast() {
-            if (!isLoading) {
-                currentSubjectIndexPast--;
-                if (currentSubjectIndexPast < 0) {
-                    currentSubjectIndexPast = allSubjects.length - 1; // Loop to end
-                }
-                updatePastSimpleDisplay();
-            }
-        }
-
-        function changeVerbPast() {
-            if (isLoading) return;
-            
-            // Get a random verb different from the current one
-            let newVerb;
-            do {
-                newVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            } while (newVerb === currentVerbPast);
-            
-            currentVerbPast = newVerb;
-            
-            // Get a random subject
-            currentSubjectIndexPast = Math.floor(Math.random() * allSubjects.length);
-            
-            updatePastSimpleDisplay();
-        }
-
-        // Audio Functions
-        function speak(text) {
-            if ('speechSynthesis' in window && audioEnabled) {
-                // Cancel any ongoing speech
-                window.speechSynthesis.cancel();
+                // Get appropriate wh-question word
+                const whWord = this.getWhQuestionWord(verb, tense);
                 
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9; // Slightly slower for learning
-                utterance.pitch = 1;
-                utterance.volume = 1;
-                
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function playAudioPresent() {
-            const sentences = [
-                document.getElementById('sentence1').textContent,
-                document.getElementById('sentence2').textContent,
-                document.getElementById('sentence3').textContent,
-                document.getElementById('sentence4').textContent
-            ];
-            
-            // Speak all sentences with pauses
-            let index = 0;
-            function speakNext() {
-                if (index < sentences.length) {
-                    speak(sentences[index]);
-                    index++;
-                    setTimeout(speakNext, 2000); // 2 second pause between sentences
-                }
-            }
-            speakNext();
-        }
-
-        function playAudioPast() {
-            const sentences = [
-                document.getElementById('sentencePast1').textContent,
-                document.getElementById('sentencePast2').textContent,
-                document.getElementById('sentencePast3').textContent,
-                document.getElementById('sentencePast4').textContent
-            ];
-            
-            let index = 0;
-            function speakNext() {
-                if (index < sentences.length) {
-                    speak(sentences[index]);
-                    index++;
-                    setTimeout(speakNext, 2000);
-                }
-            }
-            speakNext();
-        }
-
-        function playAudioFuture() {
-            const sentences = [
-                document.getElementById('sentenceFuture1').textContent,
-                document.getElementById('sentenceFuture2').textContent,
-                document.getElementById('sentenceFuture3').textContent,
-                document.getElementById('sentenceFuture4').textContent
-            ];
-            
-            let index = 0;
-            function speakNext() {
-                if (index < sentences.length) {
-                    speak(sentences[index]);
-                    index++;
-                    setTimeout(speakNext, 2000);
-                }
-            }
-            speakNext();
-        }
-
-        function playAudioPresentPerfect() {
-            const sentences = [
-                document.getElementById('sentencePresentPerfect1').textContent,
-                document.getElementById('sentencePresentPerfect2').textContent,
-                document.getElementById('sentencePresentPerfect3').textContent,
-                document.getElementById('sentencePresentPerfect4').textContent
-            ];
-            
-            let index = 0;
-            function speakNext() {
-                if (index < sentences.length) {
-                    speak(sentences[index]);
-                    index++;
-                    setTimeout(speakNext, 2000);
-                }
-            }
-            speakNext();
-        }
-
-        function playAudioPastPerfect() {
-            const sentences = [
-                document.getElementById('sentencePastPerfect1').textContent,
-                document.getElementById('sentencePastPerfect2').textContent,
-                document.getElementById('sentencePastPerfect3').textContent,
-                document.getElementById('sentencePastPerfect4').textContent
-            ];
-            
-            let index = 0;
-            function speakNext() {
-                if (index < sentences.length) {
-                    speak(sentences[index]);
-                    index++;
-                    setTimeout(speakNext, 2000);
-                }
-            }
-            speakNext();
-        }
-
-        // Test Yourself Functions
-        function generateNewTest() {
-            // Reset reveal stage
-            revealStage = 0;
-            
-            // Reset complete state
-            document.getElementById('testContainer').classList.remove('complete');
-            
-            // Ensure Russian is visible and all English sentences are hidden
-            document.getElementById('russianSentence').style.display = 'block';
-            document.getElementById('russianSentence').classList.remove('hidden');
-            document.querySelectorAll('.english').forEach(el => {
-                el.classList.add('hidden');
-                el.style.display = 'none';
-            });
-            
-            // Get random subject, verb, and tense
-            const randomSubject = allSubjects[Math.floor(Math.random() * allSubjects.length)];
-            const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
-            const tenses = ['present', 'past', 'future', 'presentPerfect', 'pastPerfect'];
-            const randomTense = tenses[Math.floor(Math.random() * tenses.length)];
-            
-            // Get verb data from dictionary
-            const verbData = verbDictionary[randomVerb]?.[randomTense]?.[randomSubject];
-            
-            if (verbData) {
-                // Display Russian translation
-                const russianEl = document.getElementById('russianSentence');
-                
-                // Create tense badge
-                let tenseDisplayName = '';
-                let tenseClass = '';
-                
-                switch(randomTense) {
+                // Generate forms based on tense
+                switch(tense) {
                     case 'present':
-                        tenseDisplayName = 'Present Simple';
-                        tenseClass = 'present';
-                        break;
+                        return this.getPresentSimple(verb, subject, whWord);
                     case 'past':
-                        tenseDisplayName = 'Past Simple';
-                        tenseClass = 'past';
-                        break;
+                        return this.getPastSimple(verb, subject, whWord);
                     case 'future':
-                        tenseDisplayName = 'Future Simple';
-                        tenseClass = 'future';
-                        break;
+                        return this.getFutureSimple(verb, subject, whWord);
                     case 'presentPerfect':
-                        tenseDisplayName = 'Present Perfect';
-                        tenseClass = 'present-perfect';
-                        break;
+                        return this.getPresentPerfect(verb, subject, whWord);
                     case 'pastPerfect':
-                        tenseDisplayName = 'Past Perfect';
-                        tenseClass = 'past-perfect';
-                        break;
+                        return this.getPastPerfect(verb, subject, whWord);
+                    case 'presentContinuous':
+                        return this.getPresentContinuous(verb, subject, whWord);
+                    case 'pastContinuous':
+                        return this.getPastContinuous(verb, subject, whWord);
+                    case 'futureContinuous':
+                        return this.getFutureContinuous(verb, subject, whWord);
+                    case 'presentPerfectContinuous':
+                        return this.getPresentPerfectContinuous(verb, subject, whWord);
+                    case 'pastPerfectContinuous':
+                        return this.getPastPerfectContinuous(verb, subject, whWord);
+                    default:
+                        return null;
                 }
-                
-                russianEl.innerHTML = `
-                    <span class="tense-badge ${tenseClass}" aria-label="Use ${tenseDisplayName} tense">⏱ ${tenseDisplayName}</span>
-                    ${verbData.russian}
-                `;
-                russianEl.classList.remove('hidden');
-                russianEl.style.display = 'block';
-                
-                // Store English sentences (hidden)
-                document.getElementById('englishPositive').textContent = verbData.positive;
-                document.getElementById('englishNegative').textContent = verbData.negative;
-                document.getElementById('englishQuestion').textContent = verbData.question;
-                document.getElementById('englishWhQuestion').textContent = verbData.whQuestion;
-                
-                currentTestData = { sentences: [
-                    verbData.positive,
-                    verbData.negative,
-                    verbData.question,
-                    verbData.whQuestion
-                ]};
-            }
-        }
-
-        function revealNext() {
-            const elements = [
-                'englishPositive',
-                'englishNegative', 
-                'englishQuestion',
-                'englishWhQuestion'
-            ];
+            },
             
-            if (revealStage < elements.length) {
-                const element = document.getElementById(elements[revealStage]);
-                element.classList.remove('hidden');
-                element.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
-                revealStage++;
+            // Handle special verb "be"
+            getBeVerbData(tense, subject) {
+                const forms = {
+                    present: {
+                        'I': { positive: 'I am', negative: 'I am not', question: 'Am I?', whQuestion: 'Who am I?' },
+                        'you': { positive: 'you are', negative: 'you are not', question: 'Are you?', whQuestion: 'Who are you?' },
+                        'he': { positive: 'he is', negative: 'he is not', question: 'Is he?', whQuestion: 'Who is he?' },
+                        'she': { positive: 'she is', negative: 'she is not', question: 'Is she?', whQuestion: 'Who is she?' },
+                        'it': { positive: 'it is', negative: 'it is not', question: 'Is it?', whQuestion: 'What is it?' },
+                        'we': { positive: 'we are', negative: 'we are not', question: 'Are we?', whQuestion: 'Who are we?' },
+                        'they': { positive: 'they are', negative: 'they are not', question: 'Are they?', whQuestion: 'Who are they?' }
+                    },
+                    past: {
+                        'I': { positive: 'I was', negative: 'I was not', question: 'Was I?', whQuestion: 'Who was I?' },
+                        'you': { positive: 'you were', negative: 'you were not', question: 'Were you?', whQuestion: 'Who were you?' },
+                        'he': { positive: 'he was', negative: 'he was not', question: 'Was he?', whQuestion: 'Who was he?' },
+                        'she': { positive: 'she was', negative: 'she was not', question: 'Was she?', whQuestion: 'Who was she?' },
+                        'it': { positive: 'it was', negative: 'it was not', question: 'Was it?', whQuestion: 'What was it?' },
+                        'we': { positive: 'we were', negative: 'we were not', question: 'Were we?', whQuestion: 'Who were we?' },
+                        'they': { positive: 'they were', negative: 'they were not', question: 'Were they?', whQuestion: 'Who were they?' }
+                    }
+                };
                 
-                // Mark as complete when all revealed
-                if (revealStage === elements.length) {
-                    document.getElementById('testContainer').classList.add('complete');
+                if (forms[tense] && forms[tense][subject]) {
+                    return forms[tense][subject];
                 }
+                
+                // For other tenses, generate normally
+                return null;
+            },
+            
+            // Present Simple
+            getPresentSimple(verb, subject, whWord) {
+                const thirdPerson = ['he', 'she', 'it'].includes(subject);
+                const verbForm = thirdPerson ? this.getThirdPersonForm(verb) : verb;
+                const aux = thirdPerson ? 'does' : 'do';
+                const auxNeg = thirdPerson ? "doesn't" : "don't";
+                
+                return {
+                    positive: `${subject} ${verbForm}`,
+                    negative: `${subject} ${auxNeg} ${verb}`,
+                    question: `${aux.charAt(0).toUpperCase() + aux.slice(1)} ${subject} ${verb}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `${aux} ${subject}`, verb)
+                };
+            },
+            
+            // Past Simple
+            getPastSimple(verb, subject, whWord) {
+                const pastForm = this.getPastForm(verb);
+                
+                return {
+                    positive: `${subject} ${pastForm}`,
+                    negative: `${subject} didn't ${verb}`,
+                    question: `Did ${subject} ${verb}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `did ${subject}`, verb)
+                };
+            },
+            
+            // Future Simple
+            getFutureSimple(verb, subject, whWord) {
+                return {
+                    positive: `${subject} will ${verb}`,
+                    negative: `${subject} won't ${verb}`,
+                    question: `Will ${subject} ${verb}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `will ${subject}`, verb)
+                };
+            },
+            
+            // Present Perfect
+            getPresentPerfect(verb, subject, whWord) {
+                const aux = ['he', 'she', 'it'].includes(subject) ? 'has' : 'have';
+                const auxNeg = ['he', 'she', 'it'].includes(subject) ? "hasn't" : "haven't";
+                const pastParticiple = this.getPastParticiple(verb);
+                
+                return {
+                    positive: `${subject} ${aux} ${pastParticiple}`,
+                    negative: `${subject} ${auxNeg} ${pastParticiple}`,
+                    question: `${aux.charAt(0).toUpperCase() + aux.slice(1)} ${subject} ${pastParticiple}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `${aux} ${subject}`, pastParticiple)
+                };
+            },
+            
+            // Past Perfect
+            getPastPerfect(verb, subject, whWord) {
+                const pastParticiple = this.getPastParticiple(verb);
+                
+                return {
+                    positive: `${subject} had ${pastParticiple}`,
+                    negative: `${subject} hadn't ${pastParticiple}`,
+                    question: `Had ${subject} ${pastParticiple}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `had ${subject}`, pastParticiple)
+                };
+            },
+            
+            // Present Continuous
+            getPresentContinuous(verb, subject, whWord) {
+                const beForm = subject === 'I' ? 'am' : 
+                             ['he', 'she', 'it'].includes(subject) ? 'is' : 'are';
+                const beNeg = subject === 'I' ? 'am not' : 
+                            ['he', 'she', 'it'].includes(subject) ? 'is not' : 'are not';
+                const beQuestion = subject === 'I' ? 'Am' : 
+                                 ['he', 'she', 'it'].includes(subject) ? 'Is' : 'Are';
+                const ingForm = this.getIngForm(verb);
+                
+                return {
+                    positive: `${subject} ${beForm} ${ingForm}`,
+                    negative: `${subject} ${beNeg} ${ingForm}`,
+                    question: `${beQuestion} ${subject} ${ingForm}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `${beForm} ${subject}`, ingForm)
+                };
+            },
+            
+            // Past Continuous
+            getPastContinuous(verb, subject, whWord) {
+                const wasWere = ['I', 'he', 'she', 'it'].includes(subject) ? 'was' : 'were';
+                const wasWereNeg = ['I', 'he', 'she', 'it'].includes(subject) ? 'was not' : 'were not';
+                const wasWereQuestion = ['I', 'he', 'she', 'it'].includes(subject) ? 'Was' : 'Were';
+                const ingForm = this.getIngForm(verb);
+                
+                return {
+                    positive: `${subject} ${wasWere} ${ingForm}`,
+                    negative: `${subject} ${wasWereNeg} ${ingForm}`,
+                    question: `${wasWereQuestion} ${subject} ${ingForm}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `${wasWere} ${subject}`, ingForm)
+                };
+            },
+            
+            // Future Continuous
+            getFutureContinuous(verb, subject, whWord) {
+                const ingForm = this.getIngForm(verb);
+                
+                return {
+                    positive: `${subject} will be ${ingForm}`,
+                    negative: `${subject} won't be ${ingForm}`,
+                    question: `Will ${subject} be ${ingForm}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `will ${subject} be`, ingForm)
+                };
+            },
+            
+            // Present Perfect Continuous
+            getPresentPerfectContinuous(verb, subject, whWord) {
+                const aux = ['he', 'she', 'it'].includes(subject) ? 'has' : 'have';
+                const auxNeg = ['he', 'she', 'it'].includes(subject) ? "hasn't" : "haven't";
+                const ingForm = this.getIngForm(verb);
+                
+                return {
+                    positive: `${subject} ${aux} been ${ingForm}`,
+                    negative: `${subject} ${auxNeg} been ${ingForm}`,
+                    question: `${aux.charAt(0).toUpperCase() + aux.slice(1)} ${subject} been ${ingForm}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `${aux} ${subject} been`, ingForm)
+                };
+            },
+            
+            // Past Perfect Continuous
+            getPastPerfectContinuous(verb, subject, whWord) {
+                const ingForm = this.getIngForm(verb);
+                
+                return {
+                    positive: `${subject} had been ${ingForm}`,
+                    negative: `${subject} hadn't been ${ingForm}`,
+                    question: `Had ${subject} been ${ingForm}?`,
+                    whQuestion: this.formatWhQuestion(whWord, `had ${subject} been`, ingForm)
+                };
+            },
+            
+            // Helper: Get third person form
+            getThirdPersonForm(verb) {
+                if (verb.endsWith('s') || verb.endsWith('ss') || verb.endsWith('sh') || 
+                    verb.endsWith('ch') || verb.endsWith('x') || verb.endsWith('z')) {
+                    return verb + 'es';
+                }
+                if (verb.endsWith('y') && !/[aeiou]y$/.test(verb)) {
+                    return verb.slice(0, -1) + 'ies';
+                }
+                if (verb.endsWith('o')) {
+                    return verb + 'es';
+                }
+                return verb + 's';
+            },
+            
+            // Helper: Get past form
+            getPastForm(verb) {
+                const irregular = {
+                    'go': 'went', 'do': 'did', 'have': 'had', 'see': 'saw',
+                    'come': 'came', 'make': 'made', 'take': 'took', 'get': 'got',
+                    'give': 'gave', 'find': 'found', 'think': 'thought', 'know': 'knew',
+                    'say': 'said', 'tell': 'told', 'become': 'became', 'leave': 'left',
+                    'feel': 'felt', 'bring': 'brought', 'begin': 'began', 'keep': 'kept',
+                    'hold': 'held', 'write': 'wrote', 'stand': 'stood', 'hear': 'heard',
+                    'let': 'let', 'mean': 'meant', 'set': 'set', 'meet': 'met',
+                    'run': 'ran', 'pay': 'paid', 'sit': 'sat', 'speak': 'spoke',
+                    'lie': 'lay', 'lead': 'led', 'read': 'read', 'grow': 'grew',
+                    'lose': 'lost', 'fall': 'fell', 'send': 'sent', 'build': 'built',
+                    'understand': 'understood', 'draw': 'drew', 'break': 'broke', 'spend': 'spent',
+                    'cut': 'cut', 'rise': 'rose', 'drive': 'drove', 'buy': 'bought',
+                    'wear': 'wore', 'choose': 'chose', 'seek': 'sought', 'throw': 'threw',
+                    'catch': 'caught', 'deal': 'dealt', 'win': 'won', 'forget': 'forgot',
+                    'lay': 'laid', 'sell': 'sold', 'fight': 'fought', 'bear': 'bore',
+                    'teach': 'taught', 'sing': 'sang', 'strike': 'struck', 'hang': 'hung',
+                    'shake': 'shook', 'ride': 'rode', 'feed': 'fed', 'shoot': 'shot',
+                    'drink': 'drank', 'fly': 'flew', 'lead': 'led', 'swim': 'swam',
+                    'eat': 'ate', 'beat': 'beat', 'cost': 'cost', 'put': 'put',
+                    'shut': 'shut', 'hit': 'hit', 'hurt': 'hurt', 'sleep': 'slept',
+                    'dream': 'dreamt'
+                };
+                
+                if (irregular[verb]) return irregular[verb];
+                
+                // Regular verbs
+                if (verb.endsWith('e')) return verb + 'd';
+                if (verb.endsWith('y') && !/[aeiou]y$/.test(verb)) {
+                    return verb.slice(0, -1) + 'ied';
+                }
+                return verb + 'ed';
+            },
+            
+            // Helper: Get past participle
+            getPastParticiple(verb) {
+                const irregular = {
+                    'go': 'gone', 'do': 'done', 'see': 'seen', 'make': 'made',
+                    'take': 'taken', 'get': 'got', 'give': 'given', 'find': 'found',
+                    'think': 'thought', 'know': 'known', 'come': 'come', 'say': 'said',
+                    'tell': 'told', 'become': 'become', 'leave': 'left', 'feel': 'felt',
+                    'bring': 'brought', 'begin': 'begun', 'keep': 'kept', 'hold': 'held',
+                    'write': 'written', 'stand': 'stood', 'hear': 'heard', 'let': 'let',
+                    'mean': 'meant', 'set': 'set', 'meet': 'met', 'run': 'run',
+                    'pay': 'paid', 'sit': 'sat', 'speak': 'spoken', 'lie': 'lain',
+                    'lead': 'led', 'read': 'read', 'grow': 'grown', 'lose': 'lost',
+                    'fall': 'fallen', 'send': 'sent', 'build': 'built', 'understand': 'understood',
+                    'draw': 'drawn', 'break': 'broken', 'spend': 'spent', 'cut': 'cut',
+                    'rise': 'risen', 'drive': 'driven', 'buy': 'bought', 'wear': 'worn',
+                    'choose': 'chosen', 'seek': 'sought', 'throw': 'thrown', 'catch': 'caught',
+                    'deal': 'dealt', 'win': 'won', 'forget': 'forgotten', 'lay': 'laid',
+                    'sell': 'sold', 'fight': 'fought', 'bear': 'borne', 'teach': 'taught',
+                    'sing': 'sung', 'strike': 'struck', 'hang': 'hung', 'shake': 'shaken',
+                    'ride': 'ridden', 'feed': 'fed', 'shoot': 'shot', 'drink': 'drunk',
+                    'fly': 'flown', 'swim': 'swum', 'eat': 'eaten', 'beat': 'beaten',
+                    'cost': 'cost', 'put': 'put', 'shut': 'shut', 'hit': 'hit',
+                    'hurt': 'hurt', 'sleep': 'slept', 'dream': 'dreamt', 'have': 'had'
+                };
+                
+                if (irregular[verb]) return irregular[verb];
+                
+                // Regular verbs - same as past form
+                return this.getPastForm(verb);
+            },
+            
+            // Helper: Get -ing form
+            getIngForm(verb) {
+                // Special cases
+                const special = {
+                    'be': 'being', 'die': 'dying', 'lie': 'lying', 'tie': 'tying'
+                };
+                
+                if (special[verb]) return special[verb];
+                
+                // Verbs ending in -ie
+                if (verb.endsWith('ie')) {
+                    return verb.slice(0, -2) + 'ying';
+                }
+                
+                // Verbs ending in -e (but not -ee, -oe, -ye)
+                if (verb.endsWith('e') && !verb.endsWith('ee') && 
+                    !verb.endsWith('oe') && !verb.endsWith('ye')) {
+                    return verb.slice(0, -1) + 'ing';
+                }
+                
+                // Double consonant verbs
+                const doubleConsonant = ['run', 'sit', 'put', 'get', 'swim', 'stop', 'shop', 'drop', 'plan'];
+                if (doubleConsonant.includes(verb)) {
+                    return verb + verb[verb.length - 1] + 'ing';
+                }
+                
+                // Default
+                return verb + 'ing';
+            },
+            
+            // Helper: Get wh-question word
+            getWhQuestionWord(verb, tense) {
+                const whWords = {
+                    // Movement/location verbs
+                    'go': 'Where', 
+                    'come': 'Where', 
+                    'run': 'Where',
+                    'walk': 'Where',
+                    'fly': 'Where',
+                    'drive': 'Where',
+                    'swim': 'Where',
+                    'leave': 'Where',
+                    'stand': 'Where',
+                    'sit': 'Where',
+                    'lie': 'Where',
+                    'fall': 'Where',
+                    'put': 'Where',
+                    'sleep': 'Where',
+                    
+                    // Action/object verbs
+                    'do': 'What',
+                    'make': 'What',
+                    'build': 'What',
+                    'create': 'What',
+                    'draw': 'What',
+                    'write': 'What',
+                    'cook': 'What',
+                    'eat': 'What',
+                    'drink': 'What',
+                    'buy': 'What',
+                    'sell': 'What',
+                    'bring': 'What',
+                    'take': 'What',
+                    'give': 'What',
+                    'get': 'What',
+                    'find': 'What',
+                    'lose': 'What',
+                    'break': 'What',
+                    'fix': 'What',
+                    'choose': 'What',
+                    'have': 'What',
+                    'see': 'What',
+                    'hear': 'What',
+                    'read': 'What',
+                    'say': 'What',
+                    'tell': 'What',
+                    'show': 'What',
+                    'throw': 'What',
+                    'catch': 'What',
+                    'seek': 'What',
+                    'sing': 'What',
+                    'play': 'What',
+                    
+                    // Communication verbs
+                    'speak': 'What language',
+                    'talk': 'What...about',
+                    'think': 'What...about',
+                    'dream': 'What...about',
+                    
+                    // Feeling/state verbs
+                    'feel': 'How',
+                    'seem': 'How',
+                    'appear': 'How',
+                    'look': 'How',
+                    'sound': 'How',
+                    'grow': 'How fast',
+                    
+                    // Person-oriented verbs
+                    'meet': 'Who',
+                    'beat': 'Who',
+                    'teach': 'What',  // teach something, not who
+                    'help': 'Who',
+                    'call': 'Who',
+                    'ask': 'Who',
+                    'wait': 'Who...for',
+                    'love': 'Who',
+                    
+                    // Knowledge/understanding verbs
+                    'know': 'What',  // know something
+                    'understand': 'What',  // understand something
+                    'tell': 'What',  // tell something
+                    
+                    // Time-based verbs
+                    'start': 'When',
+                    'begin': 'When',
+                    'finish': 'When',
+                    'end': 'When',
+                    'arrive': 'When',
+                    
+                    // Cost/value verbs
+                    'cost': 'How much',
+                    'pay': 'How much',
+                    
+                    // Work/activity verbs
+                    'work': 'Where',
+                    'study': 'What',
+                    'learn': 'What',
+                    
+                    // Emotion verbs
+                    'cry': 'Why',
+                    
+                    // Special cases
+                    'be': 'Who',
+                    'become': 'What'
+                };
+                
+                // For continuous tenses with duration focus
+                if (tense && tense.includes('PerfectContinuous')) {
+                    return 'How long';
+                }
+                
+                return whWords[verb] || 'What';
+            },
+            
+            // Helper: Format wh-question
+            formatWhQuestion(whWord, auxPattern, verb) {
+                if (!whWord || !auxPattern || !verb) {
+                    return `What ${auxPattern} ${verb}?`;
+                }
+                
+                // Special handling for verbs that need prepositions
+                if (whWord.includes('...')) {
+                    const parts = whWord.split('...');
+                    const whPart = parts[0];
+                    const prepPart = parts[1];
+                    
+                    // For verbs like "talk about", "think about", "wait for"
+                    if (prepPart === 'about') {
+                        return `${whPart} ${auxPattern} ${verb} about?`;
+                    } else if (prepPart === 'for') {
+                        return `${whPart} ${auxPattern} ${verb} for?`;
+                    }
+                    
+                    return `${whPart} ${auxPattern} ${verb} ${prepPart}?`;
+                }
+                
+                return `${whWord} ${auxPattern} ${verb}?`;
             }
-        }
+        };
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+        
+        // Make app available globally
+        window.app = app;
     </script>
 </body>
 </html>
