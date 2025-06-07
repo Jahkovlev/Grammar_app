@@ -196,7 +196,8 @@
             line-height: 1.5;
         }
         
-        #testInstructions:hover {
+        #testInstructions:hover,
+        #exerciseSubtitle:hover {
             text-decoration: underline;
             color: #4a5568;
         }
@@ -596,7 +597,7 @@
         <!-- Universal Exercise Template -->
         <div id="exerciseTemplate" class="screen exercise-screen hidden">
             <h2 id="exerciseTitle">Exercise Title</h2>
-            <p class="exercise-title" id="exerciseSubtitle">Next - поменять подлежащее<br>
+            <p class="exercise-title" id="exerciseSubtitle" onclick="app.toggleExerciseInstructions()" style="cursor: pointer;" title="Click to toggle instructions">Next - поменять подлежащее<br>
             Change the Word - поменять глагол<br>
             Клик на примерах, чтобы скрыть всё, кроме утверждения</p>
             
@@ -672,6 +673,7 @@
             revealStage: 0,
             currentTestData: null,
             instructionsCollapsed: false,
+            exerciseInstructionsCollapsed: false,
             
             // Navigation history for back button
             navigationHistory: [],
@@ -768,6 +770,7 @@
                 this.currentTense = tense;
                 this.currentSubjectIndex = 0;
                 this.currentVerb = 'go';
+                this.exerciseInstructionsCollapsed = false;
                 
                 // Reset examples visibility to shown
                 this.examplesHidden = false;
@@ -775,6 +778,14 @@
                 sentences.forEach(id => {
                     document.getElementById(id).style.display = 'block';
                 });
+                
+                // Reset instructions to expanded
+                const instructions = document.getElementById('exerciseSubtitle');
+                if (instructions) {
+                    instructions.innerHTML = `Next - поменять подлежащее<br>
+                    Change the Word - поменять глагол<br>
+                    Клик на примерах, чтобы скрыть всё, кроме утверждения`;
+                }
                 
                 // Update title and back button
                 const titles = {
@@ -1047,6 +1058,21 @@
                         - Вопрос<br>
                         - Wh-вопрос<br>
                         Клик, чтобы проверить себя`;
+                    }
+                }
+            },
+            
+            // Toggle exercise instructions
+            toggleExerciseInstructions() {
+                const instructions = document.getElementById('exerciseSubtitle');
+                if (instructions) {
+                    this.exerciseInstructionsCollapsed = !this.exerciseInstructionsCollapsed;
+                    if (this.exerciseInstructionsCollapsed) {
+                        instructions.innerHTML = 'Instructions ▼';
+                    } else {
+                        instructions.innerHTML = `Next - поменять подлежащее<br>
+                        Change the Word - поменять глагол<br>
+                        Клик на примерах, чтобы скрыть всё, кроме утверждения`;
                     }
                 }
             }
